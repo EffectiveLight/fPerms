@@ -1,0 +1,5 @@
+name: fPerms
+version: ${project.version}
+author: hamzaxx
+
+main: me.hamzaxx.fperms.bungee.fPermsPlugin

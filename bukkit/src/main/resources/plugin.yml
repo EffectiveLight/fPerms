@@ -1,0 +1,9 @@
+name: fPerms
+version: ${project.version}
+author: hamzaxx
+
+main: me.hamzaxx.fperms.bukkit.fPermsPlugin
+
+commands:
+  loc:
+    description: hi

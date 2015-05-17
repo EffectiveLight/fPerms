@@ -1,0 +1,9 @@
+### Java template
+
+# IntelliJ #
+.idea
+out
+*.iml
+
+# Maven #
+target
