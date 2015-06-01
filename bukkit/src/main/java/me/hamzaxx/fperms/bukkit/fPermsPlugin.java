@@ -13,8 +13,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import me.hamzaxx.fperms.bukkit.data.PlayerData;
 import me.hamzaxx.fperms.bukkit.listeners.CommandListener;
 import me.hamzaxx.fperms.bukkit.listeners.JoinListener;
@@ -23,11 +24,8 @@ import me.hamzaxx.fperms.bukkit.listeners.MessageListener;
 import me.hamzaxx.fperms.bukkit.netty.ClientHandler;
 import me.hamzaxx.fperms.bukkit.permissions.PermissionsInjector;
 import me.hamzaxx.fperms.bukkit.permissions.fPermsPermissible;
-import me.hamzaxx.fperms.bukkit.vault.ChatCompatibility;
-import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
@@ -40,7 +38,7 @@ public class fPermsPlugin extends JavaPlugin
 
     private static fPermsPlugin plugin;
     private static Gson gson = new Gson();
-    private static Channel ch;
+    private Channel channel;
     private EventLoopGroup group;
 
     @Override
@@ -50,8 +48,7 @@ public class fPermsPlugin extends JavaPlugin
         plugin = this;
         getServer().getMessenger().registerOutgoingPluginChannel( this, "fPerms" );
         getServer().getMessenger().registerIncomingPluginChannel( this, "fPermsPlugin", new MessageListener() );
-        Bukkit.getServicesManager().register( Chat.class, ChatCompatibility.getInstance(),
-                fPermsPlugin.getInstance(), ServicePriority.Highest );
+        // Bukkit.getServicesManager().register( Chat.class, ChatCompatibility.getInstance(), fPermsPlugin.getInstance(), ServicePriority.Highest );
         registerEvents();
         setupClient();
         handleTempData();
@@ -115,8 +112,8 @@ public class fPermsPlugin extends JavaPlugin
 
     public void kill()
     {
-        ch.closeFuture();
-        ch.close();
+        channel.closeFuture();
+        channel.close();
         group.shutdownGracefully();
     }
 
@@ -133,18 +130,19 @@ public class fPermsPlugin extends JavaPlugin
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception
                         {
-                            socketChannel.pipeline().addLast( new StringDecoder(), new StringEncoder(), new
-                                    ClientHandler( plugin ) );
+                            socketChannel.pipeline().addLast( new ObjectDecoder( ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(),
+                                    // TODO: make configurable
+                                    new ClientHandler( "hub", plugin ) );
                         }
 
                     } );
 
-            ch = b.connect( "0.0.0.0", 6969 ).sync().channel();
+            // TODO: make configurable
+            channel = b.connect( "0.0.0.0", 6969 ).sync().channel();
         } catch ( InterruptedException e )
         {
             kill();
             Bukkit.getPluginManager().disablePlugin( this );
-            e.printStackTrace();
         }
     }
 
@@ -152,6 +150,11 @@ public class fPermsPlugin extends JavaPlugin
     public Map<String, PlayerData> getPlayerData()
     {
         return playerData;
+    }
+
+    public Channel getChannel()
+    {
+        return channel;
     }
 
     public static fPermsPlugin getInstance()

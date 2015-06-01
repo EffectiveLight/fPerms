@@ -19,7 +19,8 @@ public class PermissionsInjector
     private Player player;
     private fPermsPermissible permissible;
 
-    public PermissionsInjector(@Nonnull Player player, @Nullable fPermsPermissible permissible) {
+    public PermissionsInjector(@Nonnull Player player, @Nullable fPermsPermissible permissible)
+    {
         this.player = player;
         this.permissible = permissible;
     }
@@ -38,7 +39,8 @@ public class PermissionsInjector
         }
     }
 
-    public void inject() {
+    public void inject()
+    {
         try
         {
             permField.set( player, permissible );
@@ -48,7 +50,8 @@ public class PermissionsInjector
         }
     }
 
-    private static String getCraftHumanEntityClassPath() {
+    private static String getCraftHumanEntityClassPath()
+    {
         return "org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity";
     }
 }

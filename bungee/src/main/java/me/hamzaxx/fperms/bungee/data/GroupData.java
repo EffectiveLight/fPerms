@@ -199,9 +199,9 @@ public class GroupData implements Data
         {
             dataSource.getGroups().values().stream().filter( group ->
                     group.getParents().contains( getGroupName() ) ).forEach( group ->
-                group.getEffectiveBungeePermissions().put( location, new MapMaker(
-                        group.getEffectiveBungeePermissions().get( location ) )
-                        .put( permission, true ).makeMap() ));
+                    group.getEffectiveBungeePermissions().put( location, new MapMaker(
+                            group.getEffectiveBungeePermissions().get( location ) )
+                            .put( permission, true ).makeMap() ) );
         }
         dataSource.getPlayerCache().values().stream().filter( playerData ->
                 playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach( playerData -> {

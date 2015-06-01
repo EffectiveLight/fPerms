@@ -42,7 +42,7 @@ public class CommandListener implements Listener
         }
     }
 
-    @EventHandler( ignoreCancelled = true )
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerCommandPreProcess(PlayerCommandPreprocessEvent event)
     {
         if ( event.getMessage().toLowerCase().startsWith( "/reload" ) )

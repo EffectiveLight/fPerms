@@ -7,28 +7,31 @@ package me.hamzaxx.fperms.bukkit.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import me.hamzaxx.fperms.bukkit.Permissions;
-import me.hamzaxx.fperms.bukkit.data.PlayerData;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
+import me.hamzaxx.fperms.shared.netty.ClientBye;
+import me.hamzaxx.fperms.shared.netty.ClientHello;
+import me.hamzaxx.fperms.shared.netty.PermissionChange;
+import me.hamzaxx.fperms.shared.netty.ServerBye;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class ClientHandler extends SimpleChannelInboundHandler<String>
+public class ClientHandler extends SimpleChannelInboundHandler<Object>
 {
 
+    private String serverName;
     private fPermsPlugin plugin;
 
-    public ClientHandler(fPermsPlugin plugin) {
+    public ClientHandler(String serverName, fPermsPlugin plugin)
+    {
+        this.serverName = serverName;
         this.plugin = plugin;
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause)
     {
-        Bukkit.getLogger().severe( "Lost connection to BungeeCord, disabling plugin!" );
+        plugin.getLogger().severe( "Lost connection to BungeeCord, disabling plugin!" );
+        ctx.close();
         new BukkitRunnable()
         {
             @Override
@@ -37,28 +40,61 @@ public class ClientHandler extends SimpleChannelInboundHandler<String>
                 Bukkit.getPluginManager().disablePlugin( fPermsPlugin.getInstance() );
             }
         }.runTask( fPermsPlugin.getInstance() );
-        ctx.close();
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception
     {
-        ctx.writeAndFlush( "server|hub" );
-        ctx.writeAndFlush( "dsadsa" );
+        plugin.getLogger().info( "ACTIVE" );
+        ctx.writeAndFlush( "hi " + serverName );
+        ctx.writeAndFlush( new ClientHello( serverName ) );
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
-        ctx.writeAndFlush( "bye|hub" );
+        ctx.writeAndFlush( new ClientBye( serverName ) );
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext chx, String msg) throws Exception
+    protected void channelRead0(ChannelHandlerContext chx, Object object) throws Exception
     {
-        String[] data = msg.split( "\\|" );
-        switch ( data[ 0 ] )
+        //String[] data = msg.split( "\\|" );
+        plugin.getLogger().info( object.getClass().getTypeName() );
+        boolean b = false;
+        if ( object instanceof ServerBye )
         {
+            b = true;
+            plugin.getLogger().info( "server BYE" );
+            plugin.getLogger().info( "fPerms will shutdown, Reason: " +
+                    ( ( ServerBye ) object ).getReason() + ", disabling plugin!" );
+            chx.close();
+            new BukkitRunnable()
+            {
+                @Override
+                public void run()
+                {
+                    Bukkit.getPluginManager().disablePlugin( plugin );
+                }
+            }.runTask( fPermsPlugin.getInstance() );
+        } else if ( object instanceof PermissionChange )
+        {
+            b = true;
+            plugin.getLogger().info( "server perms" );
+            PermissionChange change = ( PermissionChange ) object;
+            switch ( change.getChangeType() )
+            {
+                case GROUP_PREFIX:
+                    System.out.println( ( ( String ) change.getData() ) );
+                    break;
+            }
+        }
+        plugin.getLogger().info( String.valueOf( b ) );
+        /*switch ( clazz )
+        {
+            case ClientHello.class:
+
+                break;
             case "bye":
                 System.out.println( "BungeeCord was turned off, disabling plugin!" );
                 chx.close();
@@ -75,7 +111,13 @@ public class ClientHandler extends SimpleChannelInboundHandler<String>
             case "sendPerms":
                 //Permissions.getPlayerData().put( data[ 1 ], new PlayerData( data[ 2 ]) );
                 break;
-        }
-        System.out.println( msg );
+        }*/
+        System.out.println( object.toString() );
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx)
+    {
+        ctx.flush();
     }
 }

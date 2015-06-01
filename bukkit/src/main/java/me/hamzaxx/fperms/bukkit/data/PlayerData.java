@@ -5,12 +5,15 @@
 
 package me.hamzaxx.fperms.bukkit.data;
 
+import me.hamzaxx.fperms.bukkit.fPermsPlugin;
+
 import java.io.Serializable;
 import java.util.Map;
 
 public class PlayerData implements Data, Serializable
 {
 
+    private fPermsPlugin plugin;
     private String groupName;
     private String groupPrefix;
     private String groupSuffix;
@@ -19,9 +22,10 @@ public class PlayerData implements Data, Serializable
 
     private Map<String, Boolean> permissions;
 
-    public PlayerData(String groupName, String groupPrefix, String groupSuffix, String playerPrefix,
+    public PlayerData(fPermsPlugin plugin, String groupName, String groupPrefix, String groupSuffix, String playerPrefix,
                       String playerSuffix, Map<String, Boolean> permissions)
     {
+        this.plugin = plugin;
         this.groupName = groupName;
         this.groupPrefix = groupPrefix;
         this.groupSuffix = groupSuffix;

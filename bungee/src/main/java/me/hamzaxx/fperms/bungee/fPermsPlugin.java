@@ -9,23 +9,24 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import me.hamzaxx.fperms.bungee.commands.fPermsCommand;
 import me.hamzaxx.fperms.bungee.data.DataSource;
-import me.hamzaxx.fperms.bungee.data.redis.RedisDataSource;
-import me.hamzaxx.fperms.bungee.listeners.*;
+import me.hamzaxx.fperms.bungee.listeners.PermissionListener;
+import me.hamzaxx.fperms.bungee.listeners.ServerListener;
 import me.hamzaxx.fperms.bungee.netty.ServerHandler;
-import net.md_5.bungee.api.plugin.Listener;
+import me.hamzaxx.fperms.shared.netty.Change;
+import me.hamzaxx.fperms.shared.netty.PermissionChange;
+import me.hamzaxx.fperms.shared.netty.ServerBye;
 import net.md_5.bungee.api.plugin.Plugin;
 
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -41,7 +42,7 @@ public class fPermsPlugin extends Plugin
     private Channel channel;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-    private static ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
 
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
 
@@ -53,7 +54,9 @@ public class fPermsPlugin extends Plugin
         getProxy().registerChannel( "fPermsPlugin" );
         getProxy().getPluginManager().registerCommand( this, new fPermsCommand( this ) );
         registerListeners();
-        // setupServer();
+        setupServer();
+        getProxy().getScheduler().schedule( this, () -> getChannels().get( "hub" ).writeAndFlush(
+                new PermissionChange( Change.GROUP_PREFIX, "penis" ) ), 15, TimeUnit.SECONDS );
         /*getProxy().getScheduler().schedule( this, () -> {
             System.out.println( "Sent message" );
             getChannels().get( "hub" ).writeAndFlush( "uuid|" + UUID.randomUUID().toString() );
@@ -64,17 +67,18 @@ public class fPermsPlugin extends Plugin
     @Override
     public void onDisable()
     {
-        /*getChannels().values().forEach( channel -> channel.writeAndFlush( "bye" ) );
+        getChannels().values().forEach( channel ->
+                channel.writeAndFlush( new ServerBye( "BungeeCord shutdown" ) ) );
         channel.closeFuture();
         channel.close();
         bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();*/
+        workerGroup.shutdownGracefully();
         plugin = null;
     }
 
     private void registerListeners()
     {
-        Stream.of( new ServerListener() ).forEach( listener ->
+        Stream.of( new ServerListener(), new PermissionListener( this ) ).forEach( listener ->
                 getProxy().getPluginManager().registerListener( this, listener ) );
 
         /*for ( Listener listener : new Listener[]{ new LoginListener( this ), new MessageListener(),
@@ -97,8 +101,7 @@ public class fPermsPlugin extends Plugin
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception
                     {
-                        socketChannel.pipeline().addLast(
-                                new ObjectDecoder( Object::getClass ), new ObjectEncoder(),
+                        socketChannel.pipeline().addLast( new ObjectDecoder( ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(),
                                 new ServerHandler( plugin ) );
                     }
                 } );

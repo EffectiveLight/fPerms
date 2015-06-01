@@ -13,6 +13,7 @@ import me.hamzaxx.fperms.bungee.util.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -42,7 +43,7 @@ public class fPermsCommand extends Command
             "&3/fPerms player &b<player> &3unset&b <bungee/bukkit> <permission>",
             "&3/fPerms player &b<player> &3prefix &b<prefix>",
             "&3/fPerms player &b<player> &3suffix &b<suffix>",
-            "&6&m&n----------------------------------------" };
+            "&6&m&n-------------------------" };
 
     public fPermsCommand(fPermsPlugin plugin)
     {
@@ -218,7 +219,7 @@ public class fPermsCommand extends Command
                 Data groupData = dataSource.getGroup( object );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
-                   // groupData.setBungeePermission( permission, value );
+                    // groupData.setBungeePermission( permission, value );
                     // TODO: add server-sided refresh
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s on Bukkit!",
                             permission, value, groupData.getGroupName() );
@@ -242,7 +243,7 @@ public class fPermsCommand extends Command
                 Data playerData = dataSource.getPlayerData( player.getUniqueId() );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
-                   // playerData.setBungeePermission( permission, value );
+                    // playerData.setBungeePermission( permission, value );
                     // TODO: add server-sided refresh
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for player %s on BungeeCord!",
                             permission, value, player.getName() );
@@ -280,7 +281,7 @@ public class fPermsCommand extends Command
                             permission, groupData.getGroupName() );
                 } else if ( option.equalsIgnoreCase( "bukkit" ) )
                 {
-                    // groupData.unsetBukkitPermission( permission );
+                    //groupData.unsetBukkitPermission( permission );
                     // TODO: add server-sided refresh
                     Util.sendSuccess( commandSender, "Permission %s was unset for group %s on Bukkit!", permission,
                             groupData.getGroupName() );
@@ -395,15 +396,18 @@ public class fPermsCommand extends Command
 
     private void sendHelp(CommandSender commandSender)
     {
-        for ( int i = 0; i < 11; i++ )
+        for ( int i = 0; i < HELP.length; i++ )
         {
-            TextComponent textComponent = new TextComponent( ChatColor.translateAlternateColorCodes( '&', HELP[ i ] ) );
+            BaseComponent[] textComponent = TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', HELP[ i ] ) );
             if ( commandSender instanceof ProxiedPlayer )
             {
-                if ( i > 0 && i > 11 )
+                if ( i > 0 && i > HELP.length )
                 {
-                    textComponent.setClickEvent( new ClickEvent( ClickEvent.Action.SUGGEST_COMMAND,
-                            Util.stripColors( HELP[ i ] ) ) );
+                    for ( BaseComponent baseComponent : textComponent )
+                    {
+                        baseComponent.setClickEvent( new ClickEvent( ClickEvent.Action.SUGGEST_COMMAND,
+                                Util.stripColors( HELP[ i ] ) ) );
+                    }
                 }
             }
             commandSender.sendMessage( textComponent );

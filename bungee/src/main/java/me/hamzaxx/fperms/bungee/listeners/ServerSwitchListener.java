@@ -16,7 +16,8 @@ public class ServerSwitchListener implements Listener
 
     private fPermsPlugin plugin;
 
-    public ServerSwitchListener(fPermsPlugin plugin) {
+    public ServerSwitchListener(fPermsPlugin plugin)
+    {
         this.plugin = plugin;
     }
 

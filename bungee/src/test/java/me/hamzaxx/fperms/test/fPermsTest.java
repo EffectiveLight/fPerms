@@ -15,6 +15,7 @@ import me.hamzaxx.fperms.bungee.fPermsPlugin;
 import me.hamzaxx.fperms.bungee.gson.ConcurrentHashMapTypeAdapter;
 import me.hamzaxx.fperms.bungee.gson.CopyOnWriteArrayListTypeAdapter;
 import me.hamzaxx.fperms.bungee.util.MapMaker;
+import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.junit.Test;
 
@@ -22,6 +23,7 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class fPermsTest
@@ -129,6 +131,15 @@ public class fPermsTest
         System.out.println( ( ( double ) 1678 / 365 ) );
         Boolean bool = Boolean.valueOf( "hi" );
         System.out.println( bool );
+    }
+
+    @Test
+    public void testComponents() {
+        BaseComponent[] components = TextComponent.fromLegacyText( "&6penis is&d goud!" );
+        for ( BaseComponent component : components )
+        {
+            System.out.println( component );
+        }
     }
 
     @Test

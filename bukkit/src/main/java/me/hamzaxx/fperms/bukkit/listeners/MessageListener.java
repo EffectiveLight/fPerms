@@ -27,7 +27,7 @@ public class MessageListener implements PluginMessageListener
     @Override
     public void onPluginMessageReceived(String channel, Player ignored, byte[] message)
     {
-        System.out.println( new String( message ) );
+        /*System.out.println( new String( message ) );
         try
         {
             System.out.println( new String( message, "UTF-8" ) );
@@ -73,12 +73,12 @@ public class MessageListener implements PluginMessageListener
                     Bukkit.getOnlinePlayers().stream().filter( players ->
                             Permissions.getPlayerData().get( players.getName() ).getGroupName().equals( groupName ) )
                             .forEach( players -> {
-                        Permissions.clearPlayer( players );
-                        Permissions.setPermissions( players, perms );
-                        Permissions.getPlayerData().put( players.getName(),
-                                new PlayerData( groupName, groupPrefix, groupSuffix, playerPrefix, playerSuffix,
-                                        perms ) );
-                    } );
+                                Permissions.clearPlayer( players );
+                                Permissions.setPermissions( players, perms );
+                                Permissions.getPlayerData().put( players.getName(),
+                                        new PlayerData(  groupName, groupPrefix, groupSuffix, playerPrefix, playerSuffix,
+                                                perms ) );
+                            } );
                     break;
                 case "updateGroupPrefix":
                     player = Bukkit.getPlayer( in.readUTF() );
@@ -149,7 +149,7 @@ public class MessageListener implements PluginMessageListener
         } catch ( IOException e )
         {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @SuppressWarnings("all")

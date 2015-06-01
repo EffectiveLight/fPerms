@@ -31,6 +31,16 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>me.hamzaxx</groupId>
+            <artifactId>shared</artifactId>
+            <version>0.86-ALPHA</version>
+        </dependency>
+        <!-- <dependency>
+             <groupId>org.redisson</groupId>
+             <artifactId>redisson</artifactId>
+             <version>1.2.1</version>
+         </dependency> -->
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
             <version>2.6.2</version>

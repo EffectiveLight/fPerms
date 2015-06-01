@@ -7,11 +7,8 @@ package me.hamzaxx.fperms.bungee.util;
 
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 
 public class Util
@@ -45,6 +42,6 @@ public class Util
         }
         commandSender.sendMessage( TextComponent.fromLegacyText(
                 ChatColor.translateAlternateColorCodes( '&',
-                        String.format( formattedMessage, (Object[]) formattedArgs ) ) ) );
+                        String.format( formattedMessage, ( Object[] ) formattedArgs ) ) ) );
     }
 }

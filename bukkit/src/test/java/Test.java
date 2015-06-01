@@ -17,8 +17,8 @@ public class Test
     {
         Map<String, PlayerData> list = new HashMap<>();
         Map<String, Boolean> perms = new HashMap<>();
-        list.put( "hamzaxx", new PlayerData( "Mod", "&6Mod", "&8 >&f", "", "", perms ) );
-        list.put( "effective_light", new PlayerData( "Admin", "&cAdmin", "&8 >&f", "", "", perms ) );
+        list.put( "hamzaxx", new PlayerData( null, "Mod", "&6Mod", "&8 >&f", "", "", perms ) );
+        list.put( "effective_light", new PlayerData( null, "Admin", "&cAdmin", "&8 >&f", "", "", perms ) );
         //System.out.println( list );
         File file = new File( "C:\\Users\\hamza\\Desktop\\bungee\\test.dat" );
         try
@@ -42,7 +42,7 @@ public class Test
                 try ( ObjectInputStream in = new ObjectInputStream( new FileInputStream( file ) ) )
                 {
                     @SuppressWarnings("unchecked")
-                    Map<String, PlayerData> listPersisted = (HashMap) in.readObject();
+                    Map<String, PlayerData> listPersisted = ( HashMap ) in.readObject();
 
                     listPersisted.forEach( (playerName, playerData) -> {
                         System.out.println( playerName );

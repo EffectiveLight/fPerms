@@ -20,7 +20,8 @@ public class Servers
 
     private static DataSource dataSource;
 
-    public Servers(fPermsPlugin plugin) {
+    public Servers(fPermsPlugin plugin)
+    {
         dataSource = plugin.getDataSource();
     }
 

@@ -5,7 +5,6 @@
 
 package me.hamzaxx.fperms.bukkit.listeners;
 
-import me.hamzaxx.fperms.bukkit.Permissions;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import me.hamzaxx.fperms.bukkit.permissions.PermissionsInjector;
 import org.bukkit.entity.Player;
@@ -20,7 +19,8 @@ public class LeaveListener implements Listener
 
     private fPermsPlugin plugin;
 
-    public LeaveListener(fPermsPlugin plugin) {
+    public LeaveListener(fPermsPlugin plugin)
+    {
         this.plugin = plugin;
     }
 
@@ -38,9 +38,10 @@ public class LeaveListener implements Listener
         // Permissions.removePlayer( event.getPlayer() );
     }
 
-    private void handleLeave(Player player) {
-        PermissionsInjector injector = new PermissionsInjector( player, null );
-        injector.inject();
+    private void handleLeave(Player player)
+    {
+        //PermissionsInjector injector = new PermissionsInjector( player, null );
+       // injector.inject();
     }
 
 }

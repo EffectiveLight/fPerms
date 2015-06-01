@@ -9,6 +9,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
+import me.hamzaxx.fperms.shared.netty.ClientBye;
+import me.hamzaxx.fperms.shared.netty.ClientHello;
 
 import java.util.Map;
 
@@ -24,8 +26,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object>
     @Override
     public void channelActive(final ChannelHandlerContext ctx)
     {
-        ctx.write( "hi" );
-        ctx.flush();
+        ctx.writeAndFlush( "hi" );
     }
 
     @Override
@@ -49,21 +50,22 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object>
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object object) throws Exception
     {
-        if ( object instanceof String )
+        plugin.getLogger().info( object.getClass().getName() );
+        System.out.println( object.toString() );
+        boolean b = false;
+        if ( object instanceof ClientHello )
         {
-            System.out.println( (String) object );
-            String[] data = ( (String) object ).split( "\\|" );
-            switch ( data[ 0 ] )
-            {
-                case "server":
-                    plugin.getChannels().put( data[ 1 ], channelHandlerContext.channel() );
-                    System.out.println( data[ 1 ] + " connected!" );
-                    break;
-                case "bye":
-                    plugin.getChannels().remove( data[ 1 ] );
-                    break;
-            }
+            b = true;
+            plugin.getLogger().info( "Client HELLO" );
+            ClientHello hello = ( ClientHello ) object;
+            plugin.getChannels().put( hello.getServerName(), channelHandlerContext.channel() );
+        } else if ( object instanceof ClientBye ) {
+            b = true;
+            plugin.getLogger().info( "Client BYE" );
+            ClientBye bye = ( ClientBye ) object;
+            plugin.getChannels().remove( bye.getServerName() );
         }
+        plugin.getLogger().info( String.valueOf( b ) );
     }
 
     @Override

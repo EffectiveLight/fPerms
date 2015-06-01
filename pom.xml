@@ -13,6 +13,7 @@
     <modules>
         <module>bukkit</module>
         <module>bungee</module>
+        <module>shared</module>
     </modules>
     <groupId>me.hamzaxx</groupId>
     <artifactId>fperms</artifactId>

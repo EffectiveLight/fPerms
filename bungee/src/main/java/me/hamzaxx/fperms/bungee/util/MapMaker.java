@@ -12,12 +12,14 @@ public class MapMaker
 {
     private ConcurrentMap<String, Boolean> map;
 
-    public MapMaker() {
+    public MapMaker()
+    {
         map = new ConcurrentHashMap<>();
     }
 
-    public MapMaker(ConcurrentMap<String, Boolean> map) {
-        if (map != null)
+    public MapMaker(ConcurrentMap<String, Boolean> map)
+    {
+        if ( map != null )
             this.map = map;
         else
             this.map = new ConcurrentHashMap<>();
@@ -29,12 +31,14 @@ public class MapMaker
         return this;
     }
 
-    public MapMaker remove(String key) {
+    public MapMaker remove(String key)
+    {
         map.remove( key );
         return this;
     }
 
-    public ConcurrentMap<String, Boolean> makeMap() {
+    public ConcurrentMap<String, Boolean> makeMap()
+    {
         return map;
     }
 }

@@ -38,7 +38,7 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken)
         {
             return typeToken.getRawType() == ConcurrentMap.class
-                    ? (TypeAdapter<T>) new ConcurrentHashMapTypeAdapter( plugin ) : null;
+                    ? ( TypeAdapter<T> ) new ConcurrentHashMapTypeAdapter( plugin ) : null;
         }
     };
 

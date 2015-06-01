@@ -16,7 +16,6 @@ import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class CopyOnWriteArrayListTypeAdapter<E> extends TypeAdapter<CopyOnWriteArrayList>
@@ -30,7 +29,7 @@ public final class CopyOnWriteArrayListTypeAdapter<E> extends TypeAdapter<CopyOn
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken)
         {
             return typeToken.getRawType() == CopyOnWriteArrayList.class
-                    ? (TypeAdapter<T>) new CopyOnWriteArrayListTypeAdapter() : null;
+                    ? ( TypeAdapter<T> ) new CopyOnWriteArrayListTypeAdapter() : null;
         }
     };
 
