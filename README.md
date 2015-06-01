@@ -1,2 +1,2 @@
 # fPerms
-fPerms is a blazing fast permissions plugin.
+*fPerms is a blazing fast permissions plugin.*
