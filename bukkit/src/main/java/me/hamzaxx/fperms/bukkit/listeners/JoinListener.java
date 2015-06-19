@@ -26,9 +26,8 @@ public class JoinListener implements Listener
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onLogin(PlayerLoginEvent event)
     {
-        PermissionsInjector injector = new PermissionsInjector( event.getPlayer(),
-                new fPermsPermissible( plugin, event.getPlayer() ) );
-        injector.inject();
+        new PermissionsInjector( event.getPlayer(),
+                new fPermsPermissible( event.getPlayer(), plugin ) ).inject();
         // Permissions.addPlayer( event.getPlayer() );
     }
 }

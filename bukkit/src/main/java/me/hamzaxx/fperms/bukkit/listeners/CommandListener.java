@@ -5,7 +5,6 @@
 
 package me.hamzaxx.fperms.bukkit.listeners;
 
-import me.hamzaxx.fperms.bukkit.Permissions;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -34,7 +33,8 @@ public class CommandListener implements Listener
             try ( ObjectOutputStream outputStream = new ObjectOutputStream(
                     new FileOutputStream( plugin.getDataFolder().getPath() + File.separator + "temp.dat" ) ) )
             {
-                outputStream.writeObject( Permissions.getPlayerData() );
+                outputStream.writeObject( plugin.getPlayerData() );
+                outputStream.writeObject( plugin.getGroups() );
             } catch ( IOException e )
             {
                 e.printStackTrace();
@@ -50,7 +50,8 @@ public class CommandListener implements Listener
             try ( ObjectOutputStream outputStream = new ObjectOutputStream(
                     new FileOutputStream( plugin.getDataFolder().getPath() + File.separator + "temp.dat" ) ) )
             {
-                outputStream.writeObject( Permissions.getPlayerData() );
+                outputStream.writeObject( plugin.getPlayerData() );
+                outputStream.writeObject( plugin.getGroups() );
             } catch ( IOException e )
             {
                 e.printStackTrace();

@@ -14,7 +14,6 @@ import java.lang.reflect.Field;
 
 public class PermissionsInjector
 {
-    private static String version;
     private static Field permField;
     private Player player;
     private fPermsPermissible permissible;
@@ -27,10 +26,10 @@ public class PermissionsInjector
 
     static
     {
-        version = Bukkit.getServer().getClass().getPackage().getName().split( "\\." )[ 3 ];
+        String version = Bukkit.getServer().getClass().getPackage().getName().split( "\\." )[ 3 ];
         try
         {
-            final Class<?> craftHumanEntityClass = Class.forName( getCraftHumanEntityClassPath() );
+            final Class<?> craftHumanEntityClass = Class.forName( "org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity" );
             permField = craftHumanEntityClass.getDeclaredField( "perm" );
             permField.setAccessible( true );
         } catch ( ClassNotFoundException | NoSuchFieldException e )
@@ -48,10 +47,5 @@ public class PermissionsInjector
         {
             e.printStackTrace();
         }
-    }
-
-    private static String getCraftHumanEntityClassPath()
-    {
-        return "org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity";
     }
 }

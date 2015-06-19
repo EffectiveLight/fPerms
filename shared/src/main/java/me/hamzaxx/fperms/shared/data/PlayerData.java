@@ -78,6 +78,11 @@ public class PlayerData implements Data, Serializable
         permissions.remove( permission );
     }
 
+    @Override
+    public void setPermissions(Map<String, Permission> permissions)
+    {
+        this.permissions = permissions;
+    }
 
     @Override
     public Map<String, Permission> getEffectivePermissions()

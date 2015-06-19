@@ -7,13 +7,12 @@ package me.hamzaxx.fperms.bungee.data;
 
 import com.google.gson.annotations.Expose;
 import me.hamzaxx.fperms.bungee.util.MapMaker;
+import me.hamzaxx.fperms.shared.permissions.Location;
+import me.hamzaxx.fperms.shared.permissions.Permission;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
-
-import static java.util.concurrent.ConcurrentMap.Entry;
 
 public class GroupData implements Data
 {
@@ -31,15 +30,15 @@ public class GroupData implements Data
     private List<String> parents;
 
     @Expose
-    private ConcurrentMap<String, ConcurrentMap<String, Boolean>> bungeePermissions;
+    private ConcurrentMap<String, Permission> bungeePermissions;
     @Expose
-    private ConcurrentMap<String, ConcurrentMap<String, Boolean>> bukkitPermissions;
-    private ConcurrentMap<String, ConcurrentMap<String, Boolean>> effectiveBungeePermissions;
-    private ConcurrentMap<String, ConcurrentMap<String, Boolean>> effectiveBukkitPermissions;
+    private ConcurrentMap<String, Permission> bukkitPermissions;
+    private ConcurrentMap<String, Permission> effectiveBungeePermissions;
+    private ConcurrentMap<String, Permission> effectiveBukkitPermissions;
 
     public GroupData(DataSource dataSource, String name, String prefix, String suffix, List<String> parents,
-                     ConcurrentMap<String, ConcurrentMap<String, Boolean>> bungeePermissions, ConcurrentMap<String,
-            ConcurrentMap<String, Boolean>> bukkitPermissions)
+                     ConcurrentMap<String, Permission> bungeePermissions, ConcurrentMap<String,
+            Permission> bukkitPermissions)
     {
         this.dataSource = dataSource;
         this.name = name;
@@ -69,7 +68,7 @@ public class GroupData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, ConcurrentMap<String, Boolean>> getBukkitPermissions()
+    public ConcurrentMap<String, Permission> getBukkitPermissions()
     {
         return bukkitPermissions;
     }
@@ -81,14 +80,14 @@ public class GroupData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, ConcurrentMap<String, Boolean>> getBungeePermissions()
+    public ConcurrentMap<String, Permission> getBungeePermissions()
     {
         return bungeePermissions;
     }
 
 
     @Override
-    public ConcurrentMap<String, ConcurrentMap<String, Boolean>> getEffectiveBungeePermissions()
+    public ConcurrentMap<String, Permission> getEffectiveBungeePermissions()
     {
         if ( effectiveBungeePermissions != null )
         {
@@ -100,7 +99,7 @@ public class GroupData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, ConcurrentMap<String, Boolean>> getEffectiveBukkitPermissions()
+    public ConcurrentMap<String, Permission> getEffectiveBukkitPermissions()
     {
         if ( effectiveBukkitPermissions != null )
         {
@@ -111,23 +110,21 @@ public class GroupData implements Data
         }
     }
 
-    @Override
+   /* @Override
     public String getEffectiveBukkitPermissionsJson()
     {
         throw new UnsupportedOperationException( "Not applicable!" );
-    }
+    }*/
 
     @Override
-    public boolean unsetBungeePermission(String location, String permission)
+    public boolean unsetBungeePermission(String permission)
     {
-        if ( bungeePermissions.containsKey( location ) &&
-                bungeePermissions.get( location ).containsKey( permission ) )
+        if ( bungeePermissions.containsKey( permission ) )
         {
-            if ( getBungeePermissions().get( location ).get( permission ) )
+            if ( getBungeePermissions().get( permission ).getValue() )
             {
                 dataSource.getGroups().values().stream().filter( parent ->
-                        parent.getParents().contains( getGroupName() ) )
-                        .filter( parent -> parent.getEffectiveBungeePermissions().get( location ) != null ).forEach(
+                        parent.getParents().contains( getGroupName() ) ).forEach(
                         parent -> parent.getEffectiveBukkitPermissions().remove( permission ) );
             }
             getEffectiveBungeePermissions().remove( permission );
@@ -135,79 +132,66 @@ public class GroupData implements Data
             dataSource.saveGroup( this );
             dataSource.getPlayerCache().values().stream().filter( playerData ->
                     playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach(
-                    PlayerData::computeEffectivePlayerBungeePermissions );
+                    PlayerData::computeEffectiveBungeePermissions );
             return true;
         }
         return false;
     }
 
     @Override
-    public boolean unsetBukkitPermission(String location, String permission)
+    public boolean unsetBukkitPermission(String permission)
     {
-        if ( getBukkitPermissions().get( location ).containsKey( permission ) )
+        if ( getBukkitPermissions().containsKey( permission ) )
         {
-            if ( getBungeePermissions().get( location ).get( permission ) )
+            if ( getBungeePermissions().get( permission ).getValue() )
             {
                 dataSource.getGroups().values().stream().filter( parent ->
-                        parent.getParents().contains( getGroupName() ) )
-                        .filter( parent -> parent.getEffectiveBukkitPermissions().get( location ) != null ).forEach(
+                        parent.getParents().contains( getGroupName() ) ).forEach(
                         parent -> parent.getEffectiveBukkitPermissions().remove( permission ) );
             }
             getEffectiveBungeePermissions().remove( permission );
             getBungeePermissions().remove( permission );
             dataSource.saveGroup( this );
             dataSource.getPlayerCache().values().stream().filter( playerData ->
-                    playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach( playerData -> {
-                playerData.computeEffectivePlayerBukkitPermissions();
-                playerData.computeEffectiveBukkitPermissionsJson();
-            } );
+                    playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach(
+                    PlayerData::computeEffectiveBukkitPermissions );
             return true;
         }
         return false;
     }
 
     @Override
-    public void setBungeePermission(String location, String permission, boolean value)
+    public void setBungeePermission(Permission permission)
     {
-        getBungeePermissions().put( location,
-                new MapMaker( getBukkitPermissions().get( location ) ).put( permission, value ).makeMap() );
-        getEffectiveBukkitPermissions().put( location,
-                new MapMaker( getEffectiveBukkitPermissions().get( location ) ).put( permission, value ).makeMap() );
+        getBungeePermissions().put( permission.getName(), permission );
+        getEffectiveBungeePermissions().put( permission.getName(), permission );
         dataSource.saveGroup( this );
-        if ( value )
+        if ( permission.getValue() )
         {
             dataSource.getGroups().values().stream().filter( group -> group.getParents().contains( getGroupName() ) )
                     .forEach( group ->
-                            group.getEffectiveBungeePermissions().put( location, new MapMaker(
-                                    group.getEffectiveBungeePermissions().get( location ) )
-                                    .put( permission, true ).makeMap() ) );
+                            group.getEffectiveBungeePermissions().put( permission.getName(), permission ) );
         }
         dataSource.getPlayerCache().values().stream().filter( playerData ->
                 playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach(
-                PlayerData::computeEffectivePlayerBungeePermissions );
+                PlayerData::computeEffectiveBungeePermissions );
     }
 
     @Override
-    public void setBukkitPermission(String location, String permission, boolean value)
+    public void setBukkitPermission(Permission permission)
     {
-        getBukkitPermissions().put( location,
-                new MapMaker( getBukkitPermissions().get( location ) ).put( permission, value ).makeMap() );
-        getEffectiveBukkitPermissions().put( location,
-                new MapMaker( getEffectiveBukkitPermissions().get( location ) ).put( permission, value ).makeMap() );
+        getBukkitPermissions().put( permission.getName(), permission );
+        getEffectiveBukkitPermissions().put( permission.getName(), permission );
         dataSource.saveGroup( this );
-        if ( value )
+        if ( permission.getValue() )
         {
             dataSource.getGroups().values().stream().filter( group ->
                     group.getParents().contains( getGroupName() ) ).forEach( group ->
-                    group.getEffectiveBungeePermissions().put( location, new MapMaker(
-                            group.getEffectiveBungeePermissions().get( location ) )
-                            .put( permission, true ).makeMap() ) );
+                    group.getEffectiveBungeePermissions().put( permission.getName(), permission ) );
         }
         dataSource.getPlayerCache().values().stream().filter( playerData ->
-                playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach( playerData -> {
-            playerData.computeEffectivePlayerBukkitPermissions();
-            playerData.computeEffectiveBukkitPermissionsJson();
-        } );
+                playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach(
+                PlayerData::computeEffectiveBukkitPermissions );
     }
 
     @Override
@@ -233,9 +217,9 @@ public class GroupData implements Data
         dataSource.saveGroup( this );
         dataSource.getPlayerCache().values().stream().filter( playerData ->
                 playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach( playerData -> {
-            playerData.computeEffectivePlayerBukkitPermissions();
-            playerData.computeEffectiveBukkitPermissionsJson();
-            playerData.computeEffectivePlayerBungeePermissions();
+            playerData.computeEffectiveBukkitPermissions();
+            //playerData.computeEffectiveBukkitPermissionsJson();
+            playerData.computeEffectiveBungeePermissions();
         } );
     }
 
@@ -248,22 +232,21 @@ public class GroupData implements Data
         dataSource.saveGroup( this );
         dataSource.getPlayerCache().values().stream().filter( playerData ->
                 playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach( playerData -> {
-            playerData.computeEffectivePlayerBukkitPermissions();
-            playerData.computeEffectiveBukkitPermissionsJson();
-            playerData.computeEffectivePlayerBungeePermissions();
+            playerData.computeEffectiveBukkitPermissions();
+            //playerData.computeEffectiveBukkitPermissionsJson();
+            playerData.computeEffectiveBungeePermissions();
         } );
     }
 
-    private ConcurrentMap<String, ConcurrentMap<String, Boolean>> computeEffectiveBungeePermissions()
+    private ConcurrentMap<String, Permission> computeEffectiveBungeePermissions()
     {
         if ( !getParents().isEmpty() )
         {
-            ConcurrentMap<String, ConcurrentMap<String, Boolean>> tempMap = new ConcurrentHashMap<>();
+            ConcurrentMap<String, Permission> tempMap = new ConcurrentHashMap<>();
             getParents().forEach( group -> {
                 Data tempGroup = dataSource.getGroup( group );
                 tempGroup.getBungeePermissions().entrySet().forEach( entry ->
-                        tempMap.put( entry.getKey(), entry.getValue().entrySet().stream().filter( Entry::getValue )
-                                .collect( Collectors.toConcurrentMap( Entry::getKey, Entry::getValue ) ) ) );
+                        tempMap.put( entry.getKey(), entry.getValue() ) );
             } );
             tempMap.putAll( getBungeePermissions() );
             this.effectiveBungeePermissions = tempMap;
@@ -275,16 +258,15 @@ public class GroupData implements Data
         }
     }
 
-    private ConcurrentMap<String, ConcurrentMap<String, Boolean>> computeEffectiveBukkitPermissions()
+    private ConcurrentMap<String, Permission> computeEffectiveBukkitPermissions()
     {
         if ( !getParents().isEmpty() )
         {
-            ConcurrentMap<String, ConcurrentMap<String, Boolean>> tempMap = new ConcurrentHashMap<>();
+            ConcurrentMap<String, Permission> tempMap = new ConcurrentHashMap<>();
             getParents().forEach( group -> {
                 Data tempGroup = dataSource.getGroup( group );
                 tempGroup.getBukkitPermissions().entrySet().forEach( entry ->
-                        tempMap.put( entry.getKey(), entry.getValue().entrySet().stream().filter( Entry::getValue )
-                                .collect( Collectors.toConcurrentMap( Entry::getKey, Entry::getValue ) ) ) );
+                        tempMap.put( entry.getKey(), entry.getValue() ) );
             } );
             tempMap.putAll( getBukkitPermissions() );
             this.effectiveBukkitPermissions = tempMap;

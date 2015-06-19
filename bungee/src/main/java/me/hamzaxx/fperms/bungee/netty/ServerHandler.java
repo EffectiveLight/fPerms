@@ -14,7 +14,7 @@ import me.hamzaxx.fperms.shared.netty.ClientHello;
 
 import java.util.Map;
 
-public class ServerHandler extends SimpleChannelInboundHandler<Object>
+public class ServerHandler extends SimpleChannelInboundHandler<String[]>
 {
     fPermsPlugin plugin;
 
@@ -26,7 +26,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object>
     @Override
     public void channelActive(final ChannelHandlerContext ctx)
     {
-        ctx.writeAndFlush( "hi" );
+        //ctx.writeAndFlush( "hi" );
     }
 
     @Override
@@ -48,24 +48,19 @@ public class ServerHandler extends SimpleChannelInboundHandler<Object>
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Object object) throws Exception
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, String[] msg) throws Exception
     {
-        plugin.getLogger().info( object.getClass().getName() );
-        System.out.println( object.toString() );
-        boolean b = false;
-        if ( object instanceof ClientHello )
+        switch ( msg[ 0 ] )
         {
-            b = true;
-            plugin.getLogger().info( "Client HELLO" );
-            ClientHello hello = ( ClientHello ) object;
-            plugin.getChannels().put( hello.getServerName(), channelHandlerContext.channel() );
-        } else if ( object instanceof ClientBye ) {
-            b = true;
-            plugin.getLogger().info( "Client BYE" );
-            ClientBye bye = ( ClientBye ) object;
-            plugin.getChannels().remove( bye.getServerName() );
+            case "clientHello":
+                ClientHello hello = plugin.getGson().fromJson( msg[ 1 ], ClientHello.class );
+                plugin.getChannels().put( hello.getServerName(), channelHandlerContext.channel() );
+                break;
+            case "clientBye":
+                ClientBye bye = plugin.getGson().fromJson( msg[ 1 ], ClientBye.class );
+                plugin.getChannels().remove( bye.getServerName() );
+                break;
         }
-        plugin.getLogger().info( String.valueOf( b ) );
     }
 
     @Override

@@ -67,6 +67,11 @@ public class GroupData implements Data
         permissions.remove( permission );
     }
 
+    public void setPermissions(Map<String, Permission> permissions)
+    {
+        this.permissions = permissions;
+    }
+
     public Map<String, Permission> getEffectivePermissions()
     {
         return permissions;

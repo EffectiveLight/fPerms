@@ -22,8 +22,8 @@ import me.hamzaxx.fperms.bungee.data.DataSource;
 import me.hamzaxx.fperms.bungee.listeners.PermissionListener;
 import me.hamzaxx.fperms.bungee.listeners.ServerListener;
 import me.hamzaxx.fperms.bungee.netty.ServerHandler;
+import me.hamzaxx.fperms.shared.netty.ChangeType;
 import me.hamzaxx.fperms.shared.netty.Change;
-import me.hamzaxx.fperms.shared.netty.PermissionChange;
 import me.hamzaxx.fperms.shared.netty.ServerBye;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -56,7 +56,7 @@ public class fPermsPlugin extends Plugin
         registerListeners();
         setupServer();
         getProxy().getScheduler().schedule( this, () -> getChannels().get( "hub" ).writeAndFlush(
-                new PermissionChange( Change.GROUP_PREFIX, "penis" ) ), 15, TimeUnit.SECONDS );
+                new Change( ChangeType.GROUP_PREFIX, "penis", name ) ), 15, TimeUnit.SECONDS );
         /*getProxy().getScheduler().schedule( this, () -> {
             System.out.println( "Sent message" );
             getChannels().get( "hub" ).writeAndFlush( "uuid|" + UUID.randomUUID().toString() );
@@ -78,7 +78,7 @@ public class fPermsPlugin extends Plugin
 
     private void registerListeners()
     {
-        Stream.of( new ServerListener(), new PermissionListener( this ) ).forEach( listener ->
+        Stream.of( new ServerListener( this ), new PermissionListener( this ) ).forEach( listener ->
                 getProxy().getPluginManager().registerListener( this, listener ) );
 
         /*for ( Listener listener : new Listener[]{ new LoginListener( this ), new MessageListener(),

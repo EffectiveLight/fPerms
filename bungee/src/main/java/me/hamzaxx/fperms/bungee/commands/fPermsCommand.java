@@ -5,7 +5,6 @@
 
 package me.hamzaxx.fperms.bungee.commands;
 
-import me.hamzaxx.fperms.bungee.Servers;
 import me.hamzaxx.fperms.bungee.data.Data;
 import me.hamzaxx.fperms.bungee.data.DataSource;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
@@ -13,8 +12,6 @@ import me.hamzaxx.fperms.bungee.util.Util;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -26,12 +23,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class fPermsCommand extends Command
 {
 
-    private String version;
-
     private DataSource dataSource;
 
     private final String[] HELP = new String[]{
-            "&6&m---------------&a&m[&efPerms &4Version: &c" + version + "&a&m]&6&m-----------------",
+            null,
             "&3/fPerms group &b<group> &3create",
             "&3/fPerms group &b<group> &3add &b<player>",
             "&3/fPerms group &b<group> &3set &b<bungee/bukkit> <permission> <value> [world/server] [world name/server name]",
@@ -39,17 +34,17 @@ public class fPermsCommand extends Command
             "&3/fPerms group &b<group> &3prefix &b<prefix>",
             "&3/fPerms group &b<group> &3suffix &b<suffix>",
             "&3/fPerms group &b<group> &3parent &b<parents...>",
-            "&3/fPerms player &b<player> &3set&b <bungee/bukkit> <permission> <value>",
-            "&3/fPerms player &b<player> &3unset&b <bungee/bukkit> <permission>",
+            "&3/fPerms player &b<player> &3set&b <bungee/bukkit> <permission> <value> [world/server] [world name/server name]",
+            "&3/fPerms player &b<player> &3unset&b <bungee/bukkit> <permission> [world/server] [world name/server name]",
             "&3/fPerms player &b<player> &3prefix &b<prefix>",
             "&3/fPerms player &b<player> &3suffix &b<suffix>",
             "&6&m&n-------------------------" };
 
     public fPermsCommand(fPermsPlugin plugin)
     {
-        super( "fPerms", "fperms.admin" );
+        super( "fPerms", "fperms.admin", "perms" );
         dataSource = plugin.getDataSource();
-        version = plugin.getDescription().getVersion();
+        HELP[ 0 ] = "&6&m---------------&a&m[&efPerms|Version:" + plugin.getDescription().getVersion() + "&a&m]&6&m-----------------";
     }
 
     @Override
@@ -77,7 +72,7 @@ public class fPermsCommand extends Command
                         if ( handleGroup( commandSender, args[ 1 ] ) )
                         {
                             dataSource.setPlayerGroup( player, args[ 1 ] );
-                            Servers.updatePlayer( player );
+                            //Servers.updatePlayer( player );
                             Util.sendSuccess( commandSender, "Player %s's group was set to %s!", player.getName(),
                                     args[ 1 ] );
                             Util.sendSuccess( player, "Your rank was set to %s!", args[ 1 ] );
@@ -116,8 +111,8 @@ public class fPermsCommand extends Command
             case "set":
                 if ( args.length == 6 )
                 {
-                    handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 3 ], args[ 4 ], Boolean.parseBoolean( args[
-                            5 ] ) );
+                    handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 3 ],
+                            args[ 4 ], Boolean.parseBoolean( args[ 5 ] ) );
                 } else
                 {
                     Util.sendMessage( commandSender,
@@ -127,7 +122,8 @@ public class fPermsCommand extends Command
             case "unset":
                 if ( args.length == 5 )
                 {
-                    handleRemove( commandSender, args[ 0 ], args[ 1 ], args[ 3 ], args[ 4 ] );
+                    handleRemove( commandSender, args[ 0 ], args[ 1 ],
+                            args[ 3 ], args[ 4 ] );
                 } else
                 {
                     Util.sendMessage( commandSender,
@@ -396,21 +392,9 @@ public class fPermsCommand extends Command
 
     private void sendHelp(CommandSender commandSender)
     {
-        for ( int i = 0; i < HELP.length; i++ )
+        for ( String help : HELP )
         {
-            BaseComponent[] textComponent = TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', HELP[ i ] ) );
-            if ( commandSender instanceof ProxiedPlayer )
-            {
-                if ( i > 0 && i > HELP.length )
-                {
-                    for ( BaseComponent baseComponent : textComponent )
-                    {
-                        baseComponent.setClickEvent( new ClickEvent( ClickEvent.Action.SUGGEST_COMMAND,
-                                Util.stripColors( HELP[ i ] ) ) );
-                    }
-                }
-            }
-            commandSender.sendMessage( textComponent );
+            commandSender.sendMessage( TextComponent.fromLegacyText( ChatColor.translateAlternateColorCodes( '&', help ) ) );
         }
     }
 

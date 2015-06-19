@@ -5,24 +5,14 @@
 
 package me.hamzaxx.fperms.bukkit.listeners;
 
-import com.google.gson.JsonParser;
-import me.hamzaxx.fperms.bukkit.Permissions;
-import me.hamzaxx.fperms.bukkit.data.PlayerData;
-import me.hamzaxx.fperms.bukkit.fPermsPlugin;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
-
+@Deprecated
 public class MessageListener implements PluginMessageListener
 {
 
-    private final JsonParser PARSER = new JsonParser();
+    //private final JsonParser PARSER = new JsonParser();
 
     @Override
     public void onPluginMessageReceived(String channel, Player ignored, byte[] message)
@@ -152,7 +142,7 @@ public class MessageListener implements PluginMessageListener
         }*/
     }
 
-    @SuppressWarnings("all")
+    /*@SuppressWarnings("all")
     private Map<String, Boolean> handlePerms(Player player, String json)
     {
         Map<String, Boolean> permissions = fPermsPlugin.getGson().fromJson( json, Map.class );
@@ -160,5 +150,5 @@ public class MessageListener implements PluginMessageListener
             Permissions.setPermission( player, entry.getKey(), entry.getValue() );
         } );
         return permissions;
-    }
+    }*/
 }

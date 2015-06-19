@@ -5,20 +5,21 @@
 
 package me.hamzaxx.fperms.bukkit.vault;
 
-import me.hamzaxx.fperms.bukkit.Permissions;
+import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
+import org.bukkit.Bukkit;
 
 @SuppressWarnings("deprecation")
 public class ChatCompatibility extends Chat
 {
 
-    private static ChatCompatibility instance;
+    private fPermsPlugin plugin;
 
-    public ChatCompatibility(Permission perms)
+    public ChatCompatibility(fPermsPlugin plugin)
     {
-        super( perms );
-        instance = this;
+        super( Bukkit.getServicesManager().load( Permission.class ) );
+        this.plugin = plugin;
     }
 
     @Override
@@ -33,55 +34,52 @@ public class ChatCompatibility extends Chat
         return true;
     }
 
-    public static ChatCompatibility getInstance()
-    {
-        return instance;
-    }
-
     @Override
     public String getPlayerPrefix(String world, String playerName)
     {
-        return Permissions.getPlayerData().get( playerName ).getPlayerPrefix();
+        return plugin.getPlayerData().get( playerName ).getPrefix();
     }
 
     @Override
     public String getPlayerSuffix(String world, String playerName)
     {
-        return Permissions.getPlayerData().get( playerName ).getPlayerSuffix();
+        return plugin.getPlayerData().get( playerName ).getSuffix();
     }
 
     @Override
-    public void setPlayerPrefix(String s, String s1, String s2)
+    public void setPlayerPrefix(String world, String playerName, String prefix)
     {
+        plugin.getPlayerData().get( playerName ).setPrefix( prefix );
     }
 
     @Override
-    public void setPlayerSuffix(String s, String s1, String s2)
+    public void setPlayerSuffix(String world, String playerName, String suffix)
     {
+        plugin.getPlayerData().get( playerName ).setSuffix( suffix );
     }
 
     @Override
     public String getGroupPrefix(String world, String playerName)
     {
-        return Permissions.getPlayerData().get( playerName ).getGroupPrefix();
+       return plugin.getPlayerData().get( playerName ).getGroup().getPrefix();
     }
 
     @Override
-    public void setGroupPrefix(String s, String s1, String s2)
+    public void setGroupPrefix(String world, String playerName, String prefix)
     {
-
+        plugin.getPlayerData().get( playerName ).getGroup().setPrefix( prefix );
     }
 
     @Override
     public String getGroupSuffix(String world, String playerName)
     {
-        return Permissions.getPlayerData().get( playerName ).getGroupSuffix();
+        return plugin.getPlayerData().get( playerName ).getGroup().getSuffix();
     }
 
     @Override
-    public void setGroupSuffix(String s, String s1, String s2)
+    public void setGroupSuffix(String world, String playerName, String suffix)
     {
-
+        plugin.getPlayerData().get( playerName ).getGroup().setSuffix( suffix );
     }
 
     @Override

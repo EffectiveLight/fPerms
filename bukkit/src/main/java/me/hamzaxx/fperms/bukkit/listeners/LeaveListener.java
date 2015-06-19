@@ -40,8 +40,8 @@ public class LeaveListener implements Listener
 
     private void handleLeave(Player player)
     {
-        //PermissionsInjector injector = new PermissionsInjector( player, null );
-       // injector.inject();
+        plugin.getPlayerData().remove( player.getName() );
+        new PermissionsInjector( player, null ).inject();
     }
 
 }

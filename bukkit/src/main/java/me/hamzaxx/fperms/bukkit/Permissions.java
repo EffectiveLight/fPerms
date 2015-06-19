@@ -5,19 +5,10 @@
 
 package me.hamzaxx.fperms.bukkit;
 
-import me.hamzaxx.fperms.bukkit.data.PlayerData;
-import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissionAttachment;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static me.hamzaxx.fperms.bukkit.fPermsPlugin.getInstance;
-
 public class Permissions
 {
 
-    private static final Map<String, PermissionAttachment> PERMISSIONS = new HashMap<>();
+    /*private static final Map<String, PermissionAttachment> PERMISSIONS = new HashMap<>();
     private static Map<String, PlayerData> playerData = new HashMap<>();
 
     public static void addPlayer(Player player)
@@ -93,5 +84,5 @@ public class Permissions
     public static Map<String, PlayerData> getPlayerData()
     {
         return playerData;
-    }
+    }*/
 }

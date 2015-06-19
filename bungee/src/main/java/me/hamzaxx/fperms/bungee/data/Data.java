@@ -5,6 +5,9 @@
 
 package me.hamzaxx.fperms.bungee.data;
 
+import me.hamzaxx.fperms.shared.permissions.Location;
+import me.hamzaxx.fperms.shared.permissions.Permission;
+
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 
@@ -17,25 +20,25 @@ public interface Data
 
     String getSuffix();
 
-    ConcurrentMap<String, ConcurrentMap<String, Boolean>> getBukkitPermissions();
+    ConcurrentMap<String, Permission> getBukkitPermissions();
 
-    ConcurrentMap<String, ConcurrentMap<String, Boolean>> getBungeePermissions();
+    ConcurrentMap<String, Permission> getBungeePermissions();
 
-    ConcurrentMap<String, ConcurrentMap<String, Boolean>> getEffectiveBungeePermissions();
+    ConcurrentMap<String, Permission> getEffectiveBungeePermissions();
 
-    ConcurrentMap<String, ConcurrentMap<String, Boolean>> getEffectiveBukkitPermissions();
+    ConcurrentMap<String, Permission> getEffectiveBukkitPermissions();
 
-    String getEffectiveBukkitPermissionsJson();
+    //String getEffectiveBukkitPermissionsJson();
 
     List<String> getParents();
 
-    boolean unsetBungeePermission(String location, String permission);
+    boolean unsetBungeePermission(String permission);
 
-    boolean unsetBukkitPermission(String location, String permission);
+    boolean unsetBukkitPermission(String permission);
 
-    void setBungeePermission(String location, String permission, boolean value);
+    void setBungeePermission(Permission permission);
 
-    void setBukkitPermission(String location, String permission, boolean value);
+    void setBukkitPermission(Permission permission);
 
     void setPrefix(String prefix);
 

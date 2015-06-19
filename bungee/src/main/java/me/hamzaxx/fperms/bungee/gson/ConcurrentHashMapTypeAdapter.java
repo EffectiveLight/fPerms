@@ -17,6 +17,7 @@ import me.hamzaxx.fperms.bungee.fPermsPlugin;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -27,7 +28,7 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
 
     public ConcurrentHashMapTypeAdapter(fPermsPlugin plugin)
     {
-        this.plugin = plugin;
+        ConcurrentHashMapTypeAdapter.plugin = plugin;
     }
 
     @SuppressWarnings("unused")
@@ -50,11 +51,11 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
             in.nextNull();
             return null;
         }
-        Type aType = new TypeToken<LinkedTreeMap<K, V>>()
+        Type aType = new TypeToken<Map<K, V>>()
         {
         }.getType();
-        Gson g = new Gson();
-        LinkedTreeMap<K, V> ltm = g.fromJson( in, aType );
+        Gson g = plugin.getGson();
+        Map<K, V> ltm = g.fromJson( in, aType );
         return new ConcurrentHashMap<>( ltm );
     }
 

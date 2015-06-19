@@ -15,6 +15,7 @@ import me.hamzaxx.fperms.bungee.data.PlayerData;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
 import me.hamzaxx.fperms.bungee.gson.ConcurrentHashMapTypeAdapter;
 import me.hamzaxx.fperms.bungee.gson.CopyOnWriteArrayListTypeAdapter;
+import me.hamzaxx.fperms.shared.permissions.Permission;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import redis.clients.jedis.Jedis;
@@ -50,7 +51,7 @@ public class RedisDataSource implements DataSource
         }.getType(), new CopyOnWriteArrayListTypeAdapter<String>() );
         gsonBuilder.registerTypeAdapter( new TypeToken<ConcurrentMap<String, Boolean>>()
         {
-        }.getType(), new ConcurrentHashMapTypeAdapter<String, Boolean>( plugin ) );
+        }.getType(), new ConcurrentHashMapTypeAdapter<String, Permission>( plugin ) );
         gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
         ProxyServer.getInstance().getScheduler().runAsync( plugin, () ->
                 pool = new JedisPool( new JedisPoolConfig(), "104.154.40.201", 6379, 0 ) );

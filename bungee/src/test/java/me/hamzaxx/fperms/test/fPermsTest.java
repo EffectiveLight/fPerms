@@ -23,7 +23,6 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 public class fPermsTest
@@ -133,8 +132,49 @@ public class fPermsTest
         System.out.println( bool );
     }
 
+    long expireTime = 15; // seconds
+    Map<String, Map<String, Long>> map = new HashMap<>();
+
     @Test
-    public void testComponents() {
+    public void onChallengeCommand()
+    {
+        System.out.println( System.currentTimeMillis() );
+        String challenger = "69swagger";
+        String challenged = "austin";
+        Map<String, Long> innerMap;
+        if ( map.containsKey( challenged ) )
+        {
+            innerMap = map.get( challenged );
+        } else
+        {
+            innerMap = new HashMap<>();
+        }
+        innerMap.put( challenger, System.currentTimeMillis() / 1000 );
+    }
+
+    @Test
+    public void onAcceptCommand()
+    {
+        String challengeAcceptor = "austin";
+        String challengeIssuer = "69swagger";
+        if ( map.containsKey( challengeAcceptor ) )
+        {
+            Map<String, Long> innerMap = map.get( challengeAcceptor );
+            if ( innerMap.containsKey( challengeIssuer ) )
+            {
+                if ( !(( System.currentTimeMillis() / 1000 )
+                        - ( innerMap.get( challengeIssuer )  + expireTime ) > 0 ) )
+                {
+                    // teleport
+                }
+                innerMap.remove( challengeIssuer );
+            }
+        }
+    }
+
+    @Test
+    public void testComponents()
+    {
         BaseComponent[] components = TextComponent.fromLegacyText( "&6penis is&d goud!" );
         for ( BaseComponent component : components )
         {

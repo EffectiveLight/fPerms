@@ -3,7 +3,11 @@
  * All rights reserved.
  */
 
-import me.hamzaxx.fperms.bukkit.data.PlayerData;
+import com.google.gson.Gson;
+import me.hamzaxx.fperms.shared.data.PlayerData;
+import me.hamzaxx.fperms.shared.netty.ChangeType;
+import me.hamzaxx.fperms.shared.netty.Change;
+import me.hamzaxx.fperms.shared.permissions.Permission;
 
 import java.io.*;
 import java.util.HashMap;
@@ -12,13 +16,15 @@ import java.util.Map;
 public class Test
 {
 
+    private Gson gson = new Gson();
+
     @org.junit.Test
     public void testSerialization()
     {
         Map<String, PlayerData> list = new HashMap<>();
-        Map<String, Boolean> perms = new HashMap<>();
-        list.put( "hamzaxx", new PlayerData( null, "Mod", "&6Mod", "&8 >&f", "", "", perms ) );
-        list.put( "effective_light", new PlayerData( null, "Admin", "&cAdmin", "&8 >&f", "", "", perms ) );
+        Map<String, Permission> perms = new HashMap<>();
+        list.put( "hamzaxx", new PlayerData( null, "Mod", "", "", perms ) );
+        list.put( "effective_light", new PlayerData( null, "Admin", "", "", perms ) );
         //System.out.println( list );
         File file = new File( "C:\\Users\\hamza\\Desktop\\bungee\\test.dat" );
         try
@@ -46,7 +52,7 @@ public class Test
 
                     listPersisted.forEach( (playerName, playerData) -> {
                         System.out.println( playerName );
-                        System.out.println( playerData.getGroupName() );
+                        System.out.println( playerData.getName() );
                     } );
                 }
             } else
@@ -60,6 +66,16 @@ public class Test
             e.printStackTrace();
         }
 
+    }
+
+    @org.junit.Test
+    public void testJson()
+    {
+        Change change = new Change( ChangeType.GROUP, 1, name );
+        String json = gson.toJson( change );
+        System.out.println( json );
+        Change backToChange = gson.fromJson( json, Change.class );
+        System.out.println( backToChange.getData() );
     }
 
 }

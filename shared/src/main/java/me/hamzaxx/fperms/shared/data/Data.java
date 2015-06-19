@@ -26,5 +26,7 @@ public interface Data
 
     void unsetPermission(String permission);
 
+    void setPermissions(Map<String, Permission> permissions);
+
     Map<String, Permission> getEffectivePermissions();
 }
