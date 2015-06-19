@@ -5,7 +5,32 @@
 
 package me.hamzaxx.fperms.shared.netty;
 
-public enum Change
+public class Change
 {
-    PLAYER_PREFIX, PLAYER_SUFFIX, GROUP_PREFIX, GROUP_SUFFIX, GROUP
+
+    private ChangeType changeType;
+    private String data;
+    private String name;
+
+    public Change(ChangeType changeType, String data, String name)
+    {
+        this.changeType = changeType;
+        this.data = data;
+        this.name = name;
+    }
+
+    public ChangeType getChangeType()
+    {
+        return changeType;
+    }
+
+    public String getData()
+    {
+        return data;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
 }
