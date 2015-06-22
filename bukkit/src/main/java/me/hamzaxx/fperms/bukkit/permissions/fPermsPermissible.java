@@ -6,14 +6,17 @@
 package me.hamzaxx.fperms.bukkit.permissions;
 
 import com.google.common.base.Preconditions;
-import me.hamzaxx.fperms.shared.data.PlayerData;
+import me.hamzaxx.fperms.bukkit.data.PlayerData;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import me.hamzaxx.fperms.shared.permissions.Location;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissibleBase;
 import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.permissions.PermissionDefault;
+
+import java.util.Set;
 
 public class fPermsPermissible extends PermissibleBase
 {
@@ -60,8 +63,8 @@ public class fPermsPermissible extends PermissibleBase
             }
         } else
         {
-            Permission permission = Bukkit.getPluginManager().getPermission( perm );
-            return permission != null && permission.getDefault().equals( PermissionDefault.TRUE );
+            Permission bukkitPermission = Bukkit.getPluginManager().getPermission( perm );
+            return bukkitPermission != null && bukkitPermission.getDefault().equals( PermissionDefault.TRUE );
         }
         return false;
     }
@@ -86,11 +89,9 @@ public class fPermsPermissible extends PermissibleBase
     @Override
     public boolean isPermissionSet(String perm)
     {
-
-        Preconditions.checkNotNull( perm, "permission can't be null" );
-        PlayerData playerData = plugin.getPlayerData().get( player.getName() );
-        Preconditions.checkNotNull( playerData, "PlayerData cannot be null" );
-        return playerData.getEffectivePermissions().containsKey( perm );
+        PlayerData data = plugin.getPlayerData().get( player.getName() );
+        Preconditions.checkNotNull( data );
+        return data.getEffectivePermissions().containsKey( perm );
     }
 
     @Override

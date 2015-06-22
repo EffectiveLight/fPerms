@@ -10,6 +10,7 @@ import me.hamzaxx.fperms.bungee.fPermsPlugin;
 import me.hamzaxx.fperms.shared.permissions.Permission;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -27,18 +28,18 @@ public class PlayerData implements Data
     //private String effectiveBukkitPermissionsJson;
 
     @Expose
-    private ConcurrentMap<String, Permission> bukkitPermissions;
+    private Map<String, Permission> bukkitPermissions;
     @Expose
-    private ConcurrentMap<String, Permission> bungeePermissions;
+    private Map<String, Permission> bungeePermissions;
 
-    private ConcurrentMap<String, Permission> effectiveBukkitPermissions;
+    private Map<String, Permission> effectiveBukkitPermissions;
 
     private fPermsPlugin plugin;
     private DataSource dataSource;
 
     public PlayerData(fPermsPlugin plugin, DataSource dataSource, UUID playerUUID,
-                      String group, String prefix, String suffix, ConcurrentMap<String, Permission>
-                              bukkitPermissions, ConcurrentMap<String, Permission> bungeePermissions)
+                      String group, String prefix, String suffix, Map<String, Permission>
+                              bukkitPermissions, Map<String, Permission> bungeePermissions)
     {
         this.plugin = plugin;
         this.dataSource = dataSource;
@@ -75,19 +76,19 @@ public class PlayerData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, Permission> getBukkitPermissions()
+    public Map<String, Permission> getBukkitPermissions()
     {
         return bukkitPermissions;
     }
 
     @Override
-    public ConcurrentMap<String, Permission> getBungeePermissions()
+    public Map<String, Permission> getBungeePermissions()
     {
         return bungeePermissions;
     }
 
     @Override
-    public ConcurrentMap<String, Permission> getEffectiveBungeePermissions()
+    public Map<String, Permission> getEffectiveBungeePermissions()
     {
         if ( bukkitPermissions != null )
         {
@@ -99,7 +100,7 @@ public class PlayerData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, Permission> getEffectiveBukkitPermissions()
+    public Map<String, Permission> getEffectiveBukkitPermissions()
     {
         if ( effectiveBukkitPermissions != null )
         {
@@ -144,20 +145,20 @@ public class PlayerData implements Data
     }
 
     @Override
-    public boolean unsetBungeePermission(Permission permission)
+    public boolean unsetBungeePermission(String permission)
     {
-        if ( !getBungeePermissions().containsKey( permission.getName() ) ) return false;
-        getBukkitPermissions().remove( permission.getName() );
+        if ( !getBungeePermissions().containsKey( permission ) ) return false;
+        getBukkitPermissions().remove( permission );
         computeEffectiveBungeePermissions();
         dataSource.savePlayer( this );
         return true;
     }
 
     @Override
-    public boolean unsetBukkitPermission(Permission permission)
+    public boolean unsetBukkitPermission(String permission)
     {
-        if ( !getBukkitPermissions().containsKey( permission.getName() ) ) return false;
-        getBukkitPermissions().remove( permission.getName() );
+        if ( !getBukkitPermissions().containsKey( permission ) ) return false;
+        getBukkitPermissions().remove( permission );
         computeEffectiveBukkitPermissions();
         dataSource.savePlayer( this );
         return true;

@@ -22,14 +22,13 @@ import me.hamzaxx.fperms.bungee.data.DataSource;
 import me.hamzaxx.fperms.bungee.listeners.PermissionListener;
 import me.hamzaxx.fperms.bungee.listeners.ServerListener;
 import me.hamzaxx.fperms.bungee.netty.ServerHandler;
-import me.hamzaxx.fperms.shared.netty.ChangeType;
 import me.hamzaxx.fperms.shared.netty.Change;
 import me.hamzaxx.fperms.shared.netty.ServerBye;
+import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class fPermsPlugin extends Plugin
@@ -55,8 +54,6 @@ public class fPermsPlugin extends Plugin
         getProxy().getPluginManager().registerCommand( this, new fPermsCommand( this ) );
         registerListeners();
         setupServer();
-        getProxy().getScheduler().schedule( this, () -> getChannels().get( "hub" ).writeAndFlush(
-                new Change( ChangeType.GROUP_PREFIX, "penis", name ) ), 15, TimeUnit.SECONDS );
         /*getProxy().getScheduler().schedule( this, () -> {
             System.out.println( "Sent message" );
             getChannels().get( "hub" ).writeAndFlush( "uuid|" + UUID.randomUUID().toString() );
@@ -112,6 +109,18 @@ public class fPermsPlugin extends Plugin
         {
             e.printStackTrace();
         }
+    }
+
+
+    public void sendToServer(Server server, Change change)
+    {
+        getChannels().get( server.getInfo().getName() )
+                .writeAndFlush( new String[]{ "change", getGson().toJson( change ) } );
+    }
+
+    public void sentToAll(Change change) {
+        getChannels().values().forEach( channel ->
+                channel.writeAndFlush( new String[]{ "change", getGson().toJson( change  ) }) );
     }
 
     public ConcurrentMap<String, Channel> getChannels()

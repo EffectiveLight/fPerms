@@ -6,8 +6,8 @@
 package me.hamzaxx.fperms.bungee.listeners;
 
 import me.hamzaxx.fperms.bungee.data.Data;
-import me.hamzaxx.fperms.shared.permissions.LocationType;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
+import me.hamzaxx.fperms.shared.permissions.Permission;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.PermissionCheckEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -31,31 +31,27 @@ public class PermissionListener implements Listener
         if ( event.getSender() instanceof ProxiedPlayer )
         {
             ProxiedPlayer player = ( ProxiedPlayer ) event.getSender();
-            if ( player.getName().equals( "Effective_Light" ) )
-            {
-                event.setHasPermission( true );
-                return;
-            }
             Data playerData = plugin.getDataSource().getPlayerData( player.getUniqueId() );
-            Map<String, Boolean> allPerms = playerData.getEffectiveBukkitPermissions().containsKey( LocationType.ALL
-                    .toString() ) ? playerData.getEffectiveBungeePermissions().get( LocationType.ALL.toString() ) : null;
+            Map<String, Permission> permissions = playerData.getEffectiveBungeePermissions();
 
-            if ( allPerms != null )
+            if ( permissions.containsKey( event.getPermission() ) )
             {
-                event.setHasPermission( allPerms.get( event.getPermission() ) );
+                Permission permission = permissions.get( event.getPermission() );
+                switch ( permission.getLocation().getType() )
+                {
+                    case ALL:
+                        event.setHasPermission( permission.getValue() );
+                        break;
+                    case SERVER:
+                        event.setHasPermission( permission.getValue()
+                                && player.getServer().getInfo().getName().equals(
+                                permission.getLocation().getLocationName() ) );
+                        break;
+                    default:
+                        event.setHasPermission( false );
+                        break;
+                }
             }
-
-            Map<String, Boolean> serverPerms =
-                    playerData.getEffectiveBukkitPermissions().containsKey(
-                            LocationType.SERVER.getPrefix() + player.getServer().getInfo().getName() ) ?
-                            playerData.getEffectiveBungeePermissions().get( LocationType.SERVER.getPrefix() +
-                                    player.getServer().getInfo().getName() ) : null;
-
-            if ( serverPerms != null )
-            {
-                event.setHasPermission( serverPerms.get( event.getPermission() ) );
-            }
-
         } else
         {
             event.setHasPermission( true );

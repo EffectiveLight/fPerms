@@ -12,11 +12,11 @@ public class Change
     private String data;
     private String name;
 
-    public Change(ChangeType changeType, String data, String name)
+    public Change(ChangeType changeType, String name, String data)
     {
         this.changeType = changeType;
-        this.data = data;
         this.name = name;
+        this.data = data;
     }
 
     public ChangeType getChangeType()

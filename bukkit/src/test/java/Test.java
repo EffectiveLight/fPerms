@@ -4,10 +4,13 @@
  */
 
 import com.google.gson.Gson;
-import me.hamzaxx.fperms.shared.data.PlayerData;
-import me.hamzaxx.fperms.shared.netty.ChangeType;
+import me.hamzaxx.fperms.bukkit.data.PlayerData;
 import me.hamzaxx.fperms.shared.netty.Change;
+import me.hamzaxx.fperms.shared.netty.ChangeType;
 import me.hamzaxx.fperms.shared.permissions.Permission;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 
 import java.io.*;
 import java.util.HashMap;
@@ -71,11 +74,10 @@ public class Test
     @org.junit.Test
     public void testJson()
     {
-        Change change = new Change( ChangeType.GROUP, 1, name );
+        Change change = new Change( ChangeType.GROUP, "changename", "data" );
         String json = gson.toJson( change );
         System.out.println( json );
         Change backToChange = gson.fromJson( json, Change.class );
         System.out.println( backToChange.getData() );
     }
-
 }

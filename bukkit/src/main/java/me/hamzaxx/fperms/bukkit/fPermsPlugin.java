@@ -16,8 +16,8 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
-import me.hamzaxx.fperms.shared.data.GroupData;
-import me.hamzaxx.fperms.shared.data.PlayerData;
+import me.hamzaxx.fperms.bukkit.data.GroupData;
+import me.hamzaxx.fperms.bukkit.data.PlayerData;
 import me.hamzaxx.fperms.bukkit.listeners.CommandListener;
 import me.hamzaxx.fperms.bukkit.listeners.JoinListener;
 import me.hamzaxx.fperms.bukkit.listeners.LeaveListener;
@@ -32,6 +32,7 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,17 +41,16 @@ public class fPermsPlugin extends JavaPlugin
     private Map<String, PlayerData> playerCache = new HashMap<>();
     private Map<String, GroupData> groupCache = new HashMap<>();
 
-    private static fPermsPlugin plugin;
-    private static Gson gson = new Gson();
+    private Config config;
+    private Gson gson = new Gson();
     private Channel channel;
     private EventLoopGroup group;
 
     @Override
     public void onEnable()
     {
-
         saveDefaultConfig();
-        plugin = this;
+        config = new Config( this );
         //getServer().getMessenger().registerOutgoingPluginChannel( this, "fPerms" );
         //getServer().getMessenger().registerIncomingPluginChannel( this, "fPermsPlugin", new MessageListener() );
         Bukkit.getServicesManager().register( Chat.class, new ChatCompatibility( this ), this, ServicePriority.Highest );
@@ -61,6 +61,7 @@ public class fPermsPlugin extends JavaPlugin
                 new PermissionsInjector( player, new fPermsPermissible( player, this ) ).inject() );
     }
 
+    @SuppressWarnings("unchecked")
     private void handleTempData()
     {
         File dataFile = new File( getDataFolder().getPath() + File.separator + "temp.dat" );
@@ -70,9 +71,8 @@ public class fPermsPlugin extends JavaPlugin
             {
                 try ( ObjectInputStream in = new ObjectInputStream( new FileInputStream( dataFile ) ) )
                 {
-                    @SuppressWarnings("unchecked")
-                    Map<String, PlayerData> mapPersisted = ( HashMap<String, PlayerData> ) in.readObject();
-                    playerCache = mapPersisted;
+                    playerCache = ( HashMap<String, PlayerData> ) in.readObject();
+                    groupCache = ( HashMap<String, GroupData> ) in.readObject();
                     new PrintWriter( dataFile ).close();
                 } catch ( ClassNotFoundException | IOException e )
                 {
@@ -100,7 +100,6 @@ public class fPermsPlugin extends JavaPlugin
     {
         kill();
         //Permissions.clearPermissions();
-        plugin = null;
     }
 
     private void registerEvents()
@@ -125,6 +124,7 @@ public class fPermsPlugin extends JavaPlugin
         group = new NioEventLoopGroup();
         try
         {
+            ClientHandler clientHandler = new ClientHandler( config.getServerName(), this );
             Bootstrap b = new Bootstrap();
             b.group( group )
                     .channel( NioSocketChannel.class )
@@ -133,15 +133,12 @@ public class fPermsPlugin extends JavaPlugin
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception
                         {
-                            socketChannel.pipeline().addLast( new ObjectDecoder( ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(),
-                                    // TODO: make configurable
-                                    new ClientHandler( "hub", plugin ) );
+                            socketChannel.pipeline().addLast( new ObjectDecoder(
+                                            ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(), clientHandler );
                         }
 
                     } );
-
-            // TODO: make configurable
-            channel = b.connect( "0.0.0.0", 6969 ).sync().channel();
+            channel = b.connect( config.getServerAddress() ).sync().channel();
         } catch ( InterruptedException e )
         {
             kill();
@@ -149,6 +146,10 @@ public class fPermsPlugin extends JavaPlugin
         }
     }
 
+    public Config getConfigiuration()
+    {
+        return config;
+    }
 
     public Map<String, GroupData> getGroups()
     {
@@ -163,11 +164,6 @@ public class fPermsPlugin extends JavaPlugin
     public Channel getChannel()
     {
         return channel;
-    }
-
-    public static fPermsPlugin getInstance()
-    {
-        return plugin;
     }
 
     public Gson getGson()

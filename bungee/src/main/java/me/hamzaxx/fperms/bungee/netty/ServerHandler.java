@@ -9,6 +9,8 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
+import me.hamzaxx.fperms.shared.netty.Change;
+import me.hamzaxx.fperms.shared.netty.ChangeType;
 import me.hamzaxx.fperms.shared.netty.ClientBye;
 import me.hamzaxx.fperms.shared.netty.ClientHello;
 
@@ -26,7 +28,9 @@ public class ServerHandler extends SimpleChannelInboundHandler<String[]>
     @Override
     public void channelActive(final ChannelHandlerContext ctx)
     {
-        //ctx.writeAndFlush( "hi" );
+        plugin.getDataSource().getGroups().values().forEach( groupData -> ctx.writeAndFlush( new String[]{ "change",
+                plugin.getGson().toJson( new Change( ChangeType.GROUP,
+                        groupData.getGroupName(), plugin.getGson().toJson( groupData ) ) ) } ) );
     }
 
     @Override

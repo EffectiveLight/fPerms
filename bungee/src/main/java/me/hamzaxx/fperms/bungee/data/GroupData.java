@@ -6,13 +6,11 @@
 package me.hamzaxx.fperms.bungee.data;
 
 import com.google.gson.annotations.Expose;
-import me.hamzaxx.fperms.bungee.util.MapMaker;
-import me.hamzaxx.fperms.shared.permissions.Location;
 import me.hamzaxx.fperms.shared.permissions.Permission;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class GroupData implements Data
 {
@@ -30,15 +28,14 @@ public class GroupData implements Data
     private List<String> parents;
 
     @Expose
-    private ConcurrentMap<String, Permission> bungeePermissions;
+    private Map<String, Permission> bungeePermissions;
     @Expose
-    private ConcurrentMap<String, Permission> bukkitPermissions;
-    private ConcurrentMap<String, Permission> effectiveBungeePermissions;
-    private ConcurrentMap<String, Permission> effectiveBukkitPermissions;
+    private Map<String, Permission> bukkitPermissions;
+    private Map<String, Permission> effectiveBungeePermissions;
+    private Map<String, Permission> effectiveBukkitPermissions;
 
     public GroupData(DataSource dataSource, String name, String prefix, String suffix, List<String> parents,
-                     ConcurrentMap<String, Permission> bungeePermissions, ConcurrentMap<String,
-            Permission> bukkitPermissions)
+                     Map<String, Permission> bungeePermissions, Map<String, Permission> bukkitPermissions)
     {
         this.dataSource = dataSource;
         this.name = name;
@@ -68,7 +65,7 @@ public class GroupData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, Permission> getBukkitPermissions()
+    public Map<String, Permission> getBukkitPermissions()
     {
         return bukkitPermissions;
     }
@@ -80,14 +77,14 @@ public class GroupData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, Permission> getBungeePermissions()
+    public Map<String, Permission> getBungeePermissions()
     {
         return bungeePermissions;
     }
 
 
     @Override
-    public ConcurrentMap<String, Permission> getEffectiveBungeePermissions()
+    public Map<String, Permission> getEffectiveBungeePermissions()
     {
         if ( effectiveBungeePermissions != null )
         {
@@ -99,7 +96,7 @@ public class GroupData implements Data
     }
 
     @Override
-    public ConcurrentMap<String, Permission> getEffectiveBukkitPermissions()
+    public Map<String, Permission> getEffectiveBukkitPermissions()
     {
         if ( effectiveBukkitPermissions != null )
         {
@@ -238,11 +235,11 @@ public class GroupData implements Data
         } );
     }
 
-    private ConcurrentMap<String, Permission> computeEffectiveBungeePermissions()
+    private Map<String, Permission> computeEffectiveBungeePermissions()
     {
         if ( !getParents().isEmpty() )
         {
-            ConcurrentMap<String, Permission> tempMap = new ConcurrentHashMap<>();
+            Map<String, Permission> tempMap = new ConcurrentHashMap<>();
             getParents().forEach( group -> {
                 Data tempGroup = dataSource.getGroup( group );
                 tempGroup.getBungeePermissions().entrySet().forEach( entry ->
@@ -258,11 +255,11 @@ public class GroupData implements Data
         }
     }
 
-    private ConcurrentMap<String, Permission> computeEffectiveBukkitPermissions()
+    private Map<String, Permission> computeEffectiveBukkitPermissions()
     {
         if ( !getParents().isEmpty() )
         {
-            ConcurrentMap<String, Permission> tempMap = new ConcurrentHashMap<>();
+            Map<String, Permission> tempMap = new ConcurrentHashMap<>();
             getParents().forEach( group -> {
                 Data tempGroup = dataSource.getGroup( group );
                 tempGroup.getBukkitPermissions().entrySet().forEach( entry ->

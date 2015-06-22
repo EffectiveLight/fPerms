@@ -7,19 +7,19 @@ package me.hamzaxx.fperms.bukkit.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import me.hamzaxx.fperms.bukkit.data.GroupData;
+import me.hamzaxx.fperms.bukkit.data.PlayerData;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
-import me.hamzaxx.fperms.shared.data.GroupData;
-import me.hamzaxx.fperms.shared.data.PlayerData;
 import me.hamzaxx.fperms.shared.netty.Change;
 import me.hamzaxx.fperms.shared.netty.ClientBye;
 import me.hamzaxx.fperms.shared.netty.ClientHello;
 import me.hamzaxx.fperms.shared.netty.ServerBye;
 import me.hamzaxx.fperms.shared.permissions.Permission;
+import me.hamzaxx.fperms.shared.permissions.PermissionData;
 import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ClientHandler extends SimpleChannelInboundHandler<String[]>
@@ -44,9 +44,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
             @Override
             public void run()
             {
-                Bukkit.getPluginManager().disablePlugin( fPermsPlugin.getInstance() );
+                Bukkit.getPluginManager().disablePlugin( plugin );
             }
-        }.runTask( fPermsPlugin.getInstance() );
+        }.runTask( plugin );
     }
 
     @Override
@@ -79,9 +79,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
                     {
                         Bukkit.getPluginManager().disablePlugin( plugin );
                     }
-                }.runTask( fPermsPlugin.getInstance() );
+                }.runTask( plugin );
                 break;
-            case "permissionChange":
+            case "change":
                 Change change = plugin.getGson().fromJson( msg[ 1 ], Change.class );
                 handlePermissionChange( change );
                 break;
@@ -101,12 +101,12 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
         switch ( change.getChangeType() )
         {
             case PLAYER:
-                PlayerData playerData = plugin.getGson().fromJson( change.getData(), PlayerData.class );
-                plugin.getPlayerData().put( change.getName(), playerData );
+                PermissionData playerPermissionData = plugin.getGson().fromJson( change.getData(), PermissionData.class );
+                plugin.getPlayerData().put( change.getName(), new PlayerData( plugin, playerPermissionData ) );
                 break;
             case GROUP:
-                GroupData groupData = plugin.getGson().fromJson( change.getData(), GroupData.class );
-                plugin.getGroups().put( groupData.getName(), groupData );
+                PermissionData groupPermissionData = plugin.getGson().fromJson( change.getData(), PermissionData.class );
+                plugin.getGroups().put( change.getName(), new GroupData( plugin, groupPermissionData ) );
                 break;
             case GROUP_PREFIX:
                 plugin.getGroups().get( change.getName() ).setPrefix( change.getData() );
@@ -123,46 +123,26 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
                 break;
             case SET_PLAYER_PERMISSION:
                 permission = plugin.getGson().fromJson( change.getData(), Permission.class );
-                plugin.getPlayerData().get( change.getName() )
-                        .getEffectivePermissions().put( permission.getName(), permission );
+                plugin.getPlayerData().get( change.getName() ).setPermission( permission );
                 break;
             case UNSET_PLAYER_PERMISSION:
-                plugin.getPlayerData().get( change.getName() )
-                        .getEffectivePermissions().remove( change.getData() );
-                break;
-            case RESET_PLAYER_PERMISSIONS:
-                @SuppressWarnings("unchecked")
-                Map<String, Permission> permissionPlayerMap = plugin.getGson().fromJson( change.getData(), Map.class );
-                plugin.getPlayerData().get( change.getName() ).setPermissions( permissionPlayerMap );
+                plugin.getPlayerData().get( change.getName() ).unsetPermission( change.getData() );
                 break;
             case SET_GROUP_PERMISSION:
                 permission = plugin.getGson().fromJson( change.getData(), Permission.class );
-                plugin.getGroups().get( change.getName() )
-                        .getEffectivePermissions().put( permission.getName(), permission );
-                updatePlayers();
+                plugin.getGroups().get( change.getName() ).setPermission( permission );
                 break;
             case UNSET_GROUP_PERMISSION:
-                permission = plugin.getGson().fromJson( change.getData(), Permission.class );
-                plugin.getGroups().get( change.getName() ).setPermission( permission );
-                updatePlayers();
+                plugin.getGroups().get( change.getName() ).unsetPermission( change.getData() );
                 break;
-            case RESET_GROUP_PERMISSIONS:
-                @SuppressWarnings("unchecked")
-                Map<String, Permission> permissionGroupMap = plugin.getGson().fromJson( change.getData(), Map.class );
-                plugin.getGroups().get( change.getName() ).setPermissions( permissionGroupMap );
-                updatePlayers();
+            case REFRESH_PERMISSIONS:
+                @SuppressWarnings( "unchecked" )
+                Map<String, Permission> permissions = plugin.getGson().fromJson( change.getData(), Map.class );
+                plugin.getGroups().get( change.getName() ).setPermissions( permissions );
+                break;
+            case GROUP_NAME:
+                plugin.getPlayerData().get( change.getName() ).setGroup( change.getData() );
                 break;
         }
-    }
-
-    private void updatePlayers()
-    {
-        Bukkit.getOnlinePlayers().forEach( player -> {
-            Map<String, Permission> tempMap = new HashMap<>();
-            PlayerData playerData = plugin.getPlayerData().get( player.getName() );
-            tempMap.putAll( playerData.getEffectivePermissions() );
-            tempMap.putAll( playerData.getGroup().getEffectivePermissions() );
-            playerData.setPermissions( tempMap );
-        } );
     }
 }

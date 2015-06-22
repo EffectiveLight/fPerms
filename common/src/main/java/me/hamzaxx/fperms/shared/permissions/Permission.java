@@ -17,9 +17,11 @@ public class Permission
         this.name = name;
         this.location = location;
         this.value = value;
+
     }
 
-    public Permission(String name, Location location) {
+    public Permission(String name, Location location)
+    {
         this.name = name;
         this.location = location;
     }
@@ -38,4 +40,5 @@ public class Permission
     {
         return value;
     }
+
 }

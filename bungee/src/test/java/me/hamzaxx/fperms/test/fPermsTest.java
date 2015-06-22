@@ -45,10 +45,9 @@ public class fPermsTest
         ConcurrentMap<String, ConcurrentMap<String, Boolean>> bungeeMap = new ConcurrentHashMap<>();
         //bungeeMap.put( "bungeecord.command.list", true );
         //bungeeMap.put( "smoke.it", false );
-        Data group = new GroupData( new RedisDataSource( fPermsPlugin.getInstance() ), "Admin", "hi", "bye", array,
-                bungeeMap, new ConcurrentHashMap<>() );
-        String str = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson( group );
-        System.out.println( str );
+        //Data group = new GroupData( new RedisDataSource( fPermsPlugin.getInstance() ), "Admin", "hi", "bye", array, bungeeMap, new ConcurrentHashMap<>() );
+        //String str = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create().toJson( group );
+        //System.out.println( str );
     }
 
     @Test
@@ -213,20 +212,6 @@ public class fPermsTest
     }
 
     @Test
-    public void testMath()
-    {
-        int vanityCredits = 100;
-        System.out.println( vanityCredits * 100 );
-
-        int hypixelCredits = 0;
-        for ( int i = 0; i < vanityCredits; i++ )
-        {
-            hypixelCredits += i * 100;
-        }
-        System.out.println( hypixelCredits );
-    }
-
-    @Test
     public void testMapPersistence()
     {
         ConcurrentMap<String, Boolean> map1 = new ConcurrentHashMap<>();
@@ -251,5 +236,7 @@ public class fPermsTest
             System.out.println( s );
         }
     }
+
+
 
 }

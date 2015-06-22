@@ -41,7 +41,7 @@ public class Servers
                         out.writeUTF( group.getGroupName() );
                         out.writeUTF( group.getPrefix() );
                         out.writeUTF( group.getSuffix() );
-                        out.writeUTF( group.getEffectiveBukkitPermissionsJson() );
+                        //out.writeUTF( group.getEffectiveBukkitPermissionsJson() );
                         serverInfo.sendData( "fPermsPlugin", b.toByteArray() );
                     }
                 }
@@ -66,7 +66,7 @@ public class Servers
             out.writeUTF( group.getSuffix() );
             out.writeUTF( playerData.getPrefix() );
             out.writeUTF( playerData.getSuffix() );
-            out.writeUTF( group.getEffectiveBukkitPermissionsJson() );
+           // out.writeUTF( group.getEffectiveBukkitPermissionsJson() );
             player.getServer().sendData( "fPermsPlugin", b.toByteArray() );
         } catch ( IOException e )
         {

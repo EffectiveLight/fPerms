@@ -51,9 +51,7 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
             in.nextNull();
             return null;
         }
-        Type aType = new TypeToken<Map<K, V>>()
-        {
-        }.getType();
+        Type aType = new TypeToken<Map<K, V>>() {}.getType();
         Gson g = plugin.getGson();
         Map<K, V> ltm = g.fromJson( in, aType );
         return new ConcurrentHashMap<>( ltm );

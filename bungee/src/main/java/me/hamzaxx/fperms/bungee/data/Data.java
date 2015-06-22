@@ -5,11 +5,10 @@
 
 package me.hamzaxx.fperms.bungee.data;
 
-import me.hamzaxx.fperms.shared.permissions.Location;
 import me.hamzaxx.fperms.shared.permissions.Permission;
 
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
+import java.util.Map;
 
 public interface Data
 {
@@ -20,13 +19,13 @@ public interface Data
 
     String getSuffix();
 
-    ConcurrentMap<String, Permission> getBukkitPermissions();
+    Map<String, Permission> getBukkitPermissions();
 
-    ConcurrentMap<String, Permission> getBungeePermissions();
+    Map<String, Permission> getBungeePermissions();
 
-    ConcurrentMap<String, Permission> getEffectiveBungeePermissions();
+    Map<String, Permission> getEffectiveBungeePermissions();
 
-    ConcurrentMap<String, Permission> getEffectiveBukkitPermissions();
+    Map<String, Permission> getEffectiveBukkitPermissions();
 
     //String getEffectiveBukkitPermissionsJson();
 

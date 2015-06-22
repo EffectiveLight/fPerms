@@ -13,11 +13,11 @@
     <modules>
         <module>bukkit</module>
         <module>bungee</module>
-        <module>shared</module>
+        <module>common</module>
     </modules>
     <groupId>me.hamzaxx</groupId>
     <artifactId>fperms</artifactId>
-    <version>0.89-ALPHA</version>
+    <version>0.90-ALPHA</version>
 
     <name>fPerms</name>
     <description>fPerms is a blazing fast permissions plugin.</description>
@@ -37,11 +37,6 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.16.4</version>
         </dependency>
     </dependencies>
 

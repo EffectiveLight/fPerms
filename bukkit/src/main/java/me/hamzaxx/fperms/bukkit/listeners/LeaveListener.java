@@ -28,14 +28,12 @@ public class LeaveListener implements Listener
     public void onQuit(PlayerQuitEvent event)
     {
         handleLeave( event.getPlayer() );
-        // Permissions.removePlayer( event.getPlayer() );
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onKick(PlayerKickEvent event)
     {
         handleLeave( event.getPlayer() );
-        // Permissions.removePlayer( event.getPlayer() );
     }
 
     private void handleLeave(Player player)

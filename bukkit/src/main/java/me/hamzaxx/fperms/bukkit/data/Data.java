@@ -3,7 +3,9 @@
  * All rights reserved.
  */
 
-package me.hamzaxx.fperms.shared.data;
+package me.hamzaxx.fperms.bukkit.data;
+
+
 
 import me.hamzaxx.fperms.shared.permissions.Permission;
 
@@ -28,5 +30,5 @@ public interface Data
 
     void setPermissions(Map<String, Permission> permissions);
 
-    Map<String, Permission> getEffectivePermissions();
+    Map<String, Permission> getPermissions();
 }

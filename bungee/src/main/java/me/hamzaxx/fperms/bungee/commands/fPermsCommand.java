@@ -7,8 +7,14 @@ package me.hamzaxx.fperms.bungee.commands;
 
 import me.hamzaxx.fperms.bungee.data.Data;
 import me.hamzaxx.fperms.bungee.data.DataSource;
+import me.hamzaxx.fperms.bungee.data.GroupData;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
 import me.hamzaxx.fperms.bungee.util.Util;
+import me.hamzaxx.fperms.shared.netty.Change;
+import me.hamzaxx.fperms.shared.netty.ChangeType;
+import me.hamzaxx.fperms.shared.permissions.Location;
+import me.hamzaxx.fperms.shared.permissions.LocationType;
+import me.hamzaxx.fperms.shared.permissions.Permission;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -29,20 +35,24 @@ public class fPermsCommand extends Command
             null,
             "&3/fPerms group &b<group> &3create",
             "&3/fPerms group &b<group> &3add &b<player>",
-            "&3/fPerms group &b<group> &3set &b<bungee/bukkit> <permission> <value> [world/server] [world name/server name]",
-            "&3/fPerms group &b<group> &3unset &b<bungee/bukkit> <permission> [world/server] [world name/server name]",
+            "&3/fPerms group &b<group> &3set &bbungee <permission> <value> [server]",
+            "&3/fPerms group &b<group> &3set &bbukkit <permission> <value> [world]",
+            "&3/fPerms group &b<group> &3unset &b<bungee/bukkit> <permission>",
             "&3/fPerms group &b<group> &3prefix &b<prefix>",
             "&3/fPerms group &b<group> &3suffix &b<suffix>",
             "&3/fPerms group &b<group> &3parent &b<parents...>",
-            "&3/fPerms player &b<player> &3set&b <bungee/bukkit> <permission> <value> [world/server] [world name/server name]",
-            "&3/fPerms player &b<player> &3unset&b <bungee/bukkit> <permission> [world/server] [world name/server name]",
+            "&3/fPerms player &b<player> &3set &bbungee <permission> <value> [server]",
+            "&3/fPerms player &b<player> &3set &bbungee <permission> <value> [world]",
+            "&3/fPerms group &b<group> &3unset &b<bungee/bukkit> <permission>",
             "&3/fPerms player &b<player> &3prefix &b<prefix>",
             "&3/fPerms player &b<player> &3suffix &b<suffix>",
             "&6&m&n-------------------------" };
+    private fPermsPlugin plugin;
 
     public fPermsCommand(fPermsPlugin plugin)
     {
         super( "fPerms", "fperms.admin", "perms" );
+        this.plugin = plugin;
         dataSource = plugin.getDataSource();
         HELP[ 0 ] = "&6&m---------------&a&m[&efPerms|Version:" + plugin.getDescription().getVersion() + "&a&m]&6&m-----------------";
     }
@@ -50,7 +60,7 @@ public class fPermsCommand extends Command
     @Override
     public void execute(CommandSender commandSender, String[] args)
     {
-        if ( args.length < 2 || args.length > 5 )
+        if ( args.length < 2 || args.length > 6 )
         {
             sendHelp( commandSender );
             return;
@@ -72,7 +82,7 @@ public class fPermsCommand extends Command
                         if ( handleGroup( commandSender, args[ 1 ] ) )
                         {
                             dataSource.setPlayerGroup( player, args[ 1 ] );
-                            //Servers.updatePlayer( player );
+                            plugin.sendToServer( player.getServer(), new Change( ChangeType.GROUP_NAME, player.getName(), args[ 1 ] ) );
                             Util.sendSuccess( commandSender, "Player %s's group was set to %s!", player.getName(),
                                     args[ 1 ] );
                             Util.sendSuccess( player, "Your rank was set to %s!", args[ 1 ] );
@@ -94,6 +104,8 @@ public class fPermsCommand extends Command
                         if ( !handleGroup( commandSender, args[ 1 ] ) )
                         {
                             dataSource.addGroup( args[ 1 ] );
+                            GroupData data = dataSource.getGroup( args[ 1 ] );
+                            plugin.sentToAll( new Change( ChangeType.GROUP, data.getGroupName(), plugin.getGson().toJson( data ) ) );
                             Util.sendSuccess( commandSender, "Group %s was created!", args[ 1 ] );
                         } else
                         {
@@ -111,12 +123,16 @@ public class fPermsCommand extends Command
             case "set":
                 if ( args.length == 6 )
                 {
+                    handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 2 ],
+                            args[ 3 ], Boolean.parseBoolean( args[ 4 ] ), args[ 5 ] );
+                } else if ( args.length == 5 )
+                {
                     handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 3 ],
-                            args[ 4 ], Boolean.parseBoolean( args[ 5 ] ) );
+                            args[ 4 ], Boolean.parseBoolean( args[ 5 ] ), null );
                 } else
                 {
                     Util.sendMessage( commandSender,
-                            "&3Usage: /fPerms <group/player> &b<group/player> &3set &b<permission> <value>" );
+                            "&3Usage: /fPerms <group/player> &b<group/player> &3set &b<permission> <value> [server/world]" );
                 }
                 break;
             case "unset":
@@ -172,7 +188,8 @@ public class fPermsCommand extends Command
                                     groups.add( parent );
                                 }
                                 groupData.addParents( groups );
-                                // TODO: add server-sided refresh
+                                plugin.sentToAll( new Change( ChangeType.REFRESH_PERMISSIONS, groupData.getGroupName(),
+                                        plugin.getGson().toJson( groupData.getEffectiveBukkitPermissions() ) ) );
                                 Util.sendSuccess( commandSender, "Groups %s added as parents to %s!",
                                         Arrays.toString( parents )
                                                 .replace( "[ ", "" ).replace( " ]", "" ), groupData.getGroupName() );
@@ -181,7 +198,8 @@ public class fPermsCommand extends Command
                                 if ( dataSource.groupExists( args[ 3 ] ) )
                                 {
                                     groupData.addParent( args[ 3 ] );
-                                    // TODO: add server-sided refresh
+                                    plugin.sentToAll( new Change( ChangeType.REFRESH_PERMISSIONS, groupData.getGroupName(),
+                                            plugin.getGson().toJson( groupData.getEffectiveBukkitPermissions() ) ) );
                                     Util.sendSuccess( commandSender, "Added group %s as a parent for %s!", args[ 3 ],
                                             groupData.getGroupName() );
                                 } else
@@ -205,8 +223,8 @@ public class fPermsCommand extends Command
         }
     }
 
-    private void handleSet(CommandSender commandSender, String task, String object, String option, String permission,
-                           boolean value)
+    private void handleSet(CommandSender commandSender, String task, String object,
+                           String option, String permission, boolean value, String locationName)
     {
         if ( task.equalsIgnoreCase( "group" ) )
         {
@@ -215,14 +233,28 @@ public class fPermsCommand extends Command
                 Data groupData = dataSource.getGroup( object );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
-                    // groupData.setBungeePermission( permission, value );
-                    // TODO: add server-sided refresh
+                    if ( locationName == null )
+                    {
+                        groupData.setBungeePermission( new Permission( permission, new Location( LocationType.ALL ), value ) );
+                    } else
+                    {
+                        groupData.setBungeePermission( new Permission( permission, new Location( LocationType.SERVER, locationName ), value ) );
+                    }
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s on Bukkit!",
                             permission, value, groupData.getGroupName() );
                 } else if ( object.equalsIgnoreCase( "bukkit" ) )
                 {
-                    // groupData.setBukkitPermission( permission, value );
-                    // TODO: add server-sided refresh
+                    Permission perm;
+                    if ( locationName == null )
+                    {
+                        perm = new Permission( permission, new Location( LocationType.ALL ), value );
+                        groupData.setBukkitPermission( perm );
+                    } else
+                    {
+                        perm = new Permission( permission, new Location( LocationType.WORLD, locationName ), value );
+                        groupData.setBukkitPermission( new Permission( permission, new Location( LocationType.WORLD, locationName ), value ) );
+                    }
+                    plugin.sentToAll( new Change( ChangeType.SET_GROUP_PERMISSION, groupData.getGroupName(), plugin.getGson().toJson( perm ) ) );
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s!",
                             permission, value, groupData.getGroupName() );
                 } else
@@ -239,14 +271,30 @@ public class fPermsCommand extends Command
                 Data playerData = dataSource.getPlayerData( player.getUniqueId() );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
-                    // playerData.setBungeePermission( permission, value );
-                    // TODO: add server-sided refresh
+                    if ( locationName == null )
+                    {
+                        playerData.setBungeePermission( new Permission( permission, new Location( LocationType.ALL ), value ) );
+                    } else
+                    {
+                        playerData.setBungeePermission( new Permission( permission, new Location( LocationType.SERVER, locationName ), value ) );
+                    }
+
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for player %s on BungeeCord!",
                             permission, value, player.getName() );
                 } else if ( option.equalsIgnoreCase( "bukkit" ) )
                 {
-                    // playerData.setBukkitPermission( permission, value );
-                    // TODO: add server-sided refresh
+                    Permission perm;
+                    if ( locationName == null )
+                    {
+                        perm = new Permission( permission, new Location( LocationType.ALL ), value );
+                        playerData.setBukkitPermission( perm );
+                    } else
+                    {
+                        perm = new Permission( permission, new Location( LocationType.WORLD, locationName ), value );
+                        playerData.setBukkitPermission( perm );
+                    }
+                    plugin.sendToServer( player.getServer(),
+                            new Change( ChangeType.SET_PLAYER_PERMISSION, player.getName(), plugin.getGson().toJson( perm ) ) );
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for player %s on Bukkit!",
                             permission, value, player.getName() );
                 } else
@@ -271,14 +319,13 @@ public class fPermsCommand extends Command
                 Data groupData = dataSource.getGroup( object );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
-                    // groupData.unsetBungeePermission( permission );
-                    // TODO: add server-sided refresh
+                    groupData.unsetBungeePermission( permission );
                     Util.sendSuccess( commandSender, "Permission %s was unset for group %s on BungeeCord!",
                             permission, groupData.getGroupName() );
                 } else if ( option.equalsIgnoreCase( "bukkit" ) )
                 {
-                    //groupData.unsetBukkitPermission( permission );
-                    // TODO: add server-sided refresh
+                    groupData.unsetBukkitPermission( permission );
+                    plugin.sentToAll( new Change( ChangeType.UNSET_GROUP_PERMISSION, groupData.getGroupName(), permission ) );
                     Util.sendSuccess( commandSender, "Permission %s was unset for group %s on Bukkit!", permission,
                             groupData.getGroupName() );
                 } else
@@ -295,14 +342,13 @@ public class fPermsCommand extends Command
                 Data playerData = dataSource.getPlayerData( player.getUniqueId() );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
-                    // playerData.unsetBungeePermission( permission );
-                    // TODO: add server-sided refresh
+                    playerData.unsetBungeePermission( permission );
                     Util.sendSuccess( commandSender, "Permission %s was unset for player %s on BungeeCord!",
                             permission, player.getName() );
                 } else if ( option.equalsIgnoreCase( "bukkit" ) )
                 {
-                    // playerData.unsetBukkitPermission( permission );
-                    // TODO: add server-sided refresh
+                    playerData.unsetBukkitPermission( permission );
+                    plugin.sendToServer( player.getServer(), new Change( ChangeType.UNSET_PLAYER_PERMISSION, player.getName(), permission ) );
                     Util.sendSuccess( commandSender, "Permission %s was unset for player %s on Bukkit!", permission,
                             player.getName() );
                 } else
@@ -326,7 +372,7 @@ public class fPermsCommand extends Command
             {
                 Data groupData = dataSource.getGroup( object );
                 groupData.setPrefix( prefix );
-                // TODO: add server-sided refresh
+                plugin.sentToAll( new Change( ChangeType.GROUP_PREFIX, groupData.getGroupName(), prefix ) );
                 Util.sendSuccess( commandSender, "Prefix for group %s was set to %s!", groupData.getGroupName(),
                         prefix );
             }
@@ -337,7 +383,8 @@ public class fPermsCommand extends Command
             {
                 Data playerData = dataSource.getPlayerData( player.getUniqueId() );
                 playerData.setPrefix( prefix );
-                // TODO: add server-sided refresh
+                plugin.sendToServer( player.getServer(),
+                        new Change( ChangeType.PLAYER_PREFIX, player.getName(), prefix ) );
                 Util.sendSuccess( commandSender, "Prefix for player %s was set to %s!", player.getName(), prefix );
             }
         } else
@@ -354,7 +401,7 @@ public class fPermsCommand extends Command
             {
                 Data groupData = dataSource.getGroup( object );
                 groupData.setSuffix( suffix );
-                // TODO: add server-sided refresh
+                plugin.sentToAll( new Change( ChangeType.GROUP_SUFFIX, groupData.getGroupName(), suffix ) );
                 Util.sendSuccess( commandSender, "Suffix for group %s was set to %s!", groupData.getGroupName(),
                         suffix );
             }
@@ -365,7 +412,8 @@ public class fPermsCommand extends Command
             {
                 Data playerData = dataSource.getPlayerData( player.getUniqueId() );
                 playerData.setSuffix( suffix );
-                // TODO: add server-sided refresh
+                plugin.sendToServer( player.getServer(),
+                        new Change( ChangeType.PLAYER_SUFFIX, player.getName(), suffix ) );
                 Util.sendSuccess( commandSender, "Suffix for player %s was set to %s!", player.getName(), suffix );
             }
         } else

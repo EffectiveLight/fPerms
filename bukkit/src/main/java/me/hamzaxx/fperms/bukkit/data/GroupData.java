@@ -3,43 +3,45 @@
  * All rights reserved.
  */
 
-package me.hamzaxx.fperms.shared.data;
+package me.hamzaxx.fperms.bukkit.data;
 
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import me.hamzaxx.fperms.shared.permissions.Permission;
+import me.hamzaxx.fperms.shared.permissions.PermissionData;
 
-import java.io.Serializable;
 import java.util.Map;
 
-public class PlayerData implements Data, Serializable
+public class GroupData implements Data
 {
 
     private fPermsPlugin plugin;
-    private String groupName;
+    private String name;
     private String prefix;
     private String suffix;
-
     private Map<String, Permission> permissions;
 
-    public PlayerData(fPermsPlugin plugin, String groupName, String prefix,
-                      String suffix, Map<String, Permission> permissions)
+    public GroupData(fPermsPlugin plugin, String name, String prefix, String suffix, Map<String, Permission> permissions)
     {
         this.plugin = plugin;
-        this.groupName = groupName;
+        this.name = name;
         this.prefix = prefix;
         this.suffix = suffix;
         this.permissions = permissions;
     }
 
+    public GroupData(fPermsPlugin plugin, PermissionData data)
+    {
+        this.plugin = plugin;
+        this.name = data.getName();
+        this.prefix = data.getPrefix();
+        this.suffix = data.getSuffix();
+        this.permissions = data.getPermissions();
+    }
+
     @Override
     public String getName()
     {
-        return groupName;
-    }
-
-    public GroupData getGroup()
-    {
-        return plugin.getGroups().get( getName() );
+        return name;
     }
 
     @Override
@@ -70,22 +72,28 @@ public class PlayerData implements Data, Serializable
     public void setPermission(Permission permission)
     {
         permissions.put( permission.getName(), permission );
+        plugin.getPlayerData().values().stream().filter( playerData ->
+                getName().equals( playerData.getName() ) ).forEach( playerData ->
+                playerData.setPermission( permission ) );
     }
 
     @Override
     public void unsetPermission(String permission)
     {
         permissions.remove( permission );
+        plugin.getPlayerData().values().stream().filter( playerData ->
+                getName().equals( playerData.getName() ) ).forEach( PlayerData::recalculatePermissions );
     }
 
-    @Override
     public void setPermissions(Map<String, Permission> permissions)
     {
         this.permissions = permissions;
+        plugin.getPlayerData().values().stream().filter( playerData ->
+                getName().equals( playerData.getName() ) ).forEach( PlayerData::recalculatePermissions );
     }
 
     @Override
-    public Map<String, Permission> getEffectivePermissions()
+    public Map<String, Permission> getPermissions()
     {
         return permissions;
     }

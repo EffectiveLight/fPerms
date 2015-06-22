@@ -8,12 +8,16 @@ package me.hamzaxx.fperms.shared.permissions;
 public class Location
 {
 
-    private final LocationType locationType;
-    private final String locationName;
+    private LocationType locationType;
+    private String locationName;
 
     public Location(LocationType type, String locationName) {
         this.locationType = type;
         this.locationName = locationName;
+    }
+
+    public Location(LocationType locationType) {
+        this.locationType = locationType;
     }
 
     public LocationType getType()
