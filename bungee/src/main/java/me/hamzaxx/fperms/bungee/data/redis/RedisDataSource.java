@@ -54,10 +54,10 @@ public class RedisDataSource implements DataSource
         }.getType(), new ConcurrentHashMapTypeAdapter<String, Permission>( plugin ) );
         gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
         ProxyServer.getInstance().getScheduler().runAsync( plugin, () ->
-                pool = new JedisPool( new JedisPoolConfig(), "104.154.40.201", 6379, 0 ) );
+                pool = new JedisPool( new JedisPoolConfig(), "localhost", 6379, 0 ) );
         ProxyServer.getInstance().getScheduler().schedule( plugin, () -> {
-            if ( !groupExists( "Default" ) )
-                addGroup( "Default" );
+            if ( !groupExists( "default" ) )
+                addGroup( "default" );
             updateGroups();
         }, 3, TimeUnit.SECONDS );
     }

@@ -11,10 +11,8 @@ import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import me.hamzaxx.fperms.shared.permissions.Location;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.PermissibleBase;
-import org.bukkit.permissions.Permission;
-import org.bukkit.permissions.PermissionAttachmentInfo;
-import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.permissions.*;
+import org.bukkit.plugin.Plugin;
 
 import java.util.Set;
 

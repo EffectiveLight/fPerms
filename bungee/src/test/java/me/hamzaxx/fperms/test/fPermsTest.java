@@ -82,47 +82,6 @@ public class fPermsTest
         System.out.println( System.nanoTime() - startHash );
     }
 
-    @org.junit.Test
-    public void testStuff()
-    {
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        gsonBuilder.registerTypeAdapter( new TypeToken<List<String>>()
-        {
-        }.getType(), new CopyOnWriteArrayListTypeAdapter<String>() );
-        gsonBuilder.registerTypeAdapter( new TypeToken<ConcurrentMap<String, Boolean>>()
-        {
-        }.getType(), new ConcurrentHashMapTypeAdapter<String, Boolean>( fPermsPlugin.getInstance() ) );
-        String string = "{\"name\":\"Admin\",\"prefix\":\"hi\",\"suffix\":\"bye\",\"parents\":[\"default\",\"mod\"]," +
-                "\"permissions\":{\"smoke.it\":false,\"i.lek.pie\":true}}";
-        Gson gsonWithTypeAdapter = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
-        Data group = gsonWithTypeAdapter.fromJson( string, GroupData.class );
-        System.out.println( group.getGroupName() );
-        System.out.println( group.getPrefix() );
-        System.out.println( group.getSuffix() );
-        group.getParents().forEach( System.out::println );
-        String json = gsonWithTypeAdapter.toJson( group );
-        System.out.println( json );
-        // System.out.println( group.getEffectiveBungeePermissions() );
-        // System.out.println( group.getEffectivePermissionsJson() );
-    }
-
-    @Test
-    public void testMaps()
-    {
-        Map<String, Boolean> map = new ConcurrentHashMap<>();
-        map.put( "plotme.admin", true );
-        map.put( "is.gay", false );
-        map.put( "is.caleb.watching", true );
-        String json = fPermsPlugin.getInstance().getGson().toJson( map );
-        System.out.println( json );
-        @SuppressWarnings("unchecked")
-        Map<String, Boolean> map1 = fPermsPlugin.getInstance().getGson().fromJson( json, HashMap.class );
-        for ( Map.Entry<String, Boolean> entry : map1.entrySet() )
-        {
-            System.out.println( entry.getKey() + " " + entry.getValue() );
-        }
-    }
-
     @Test
     public void testBoolean()
     {

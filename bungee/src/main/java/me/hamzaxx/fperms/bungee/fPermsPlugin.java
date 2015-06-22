@@ -19,6 +19,7 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import me.hamzaxx.fperms.bungee.commands.fPermsCommand;
 import me.hamzaxx.fperms.bungee.data.DataSource;
+import me.hamzaxx.fperms.bungee.listeners.LoginListener;
 import me.hamzaxx.fperms.bungee.listeners.PermissionListener;
 import me.hamzaxx.fperms.bungee.listeners.ServerListener;
 import me.hamzaxx.fperms.bungee.netty.ServerHandler;
@@ -34,9 +35,9 @@ import java.util.stream.Stream;
 public class fPermsPlugin extends Plugin
 {
 
-    private static fPermsPlugin plugin;
+    private fPermsPlugin plugin;
 
-    private static DataSource dataSource;
+    private DataSource dataSource;
 
     private Channel channel;
     private EventLoopGroup bossGroup;
@@ -75,14 +76,9 @@ public class fPermsPlugin extends Plugin
 
     private void registerListeners()
     {
-        Stream.of( new ServerListener( this ), new PermissionListener( this ) ).forEach( listener ->
+        Stream.of( new ServerListener( this ), new PermissionListener( this ),
+                new PermissionListener( this ), new LoginListener( this ) ).forEach( listener ->
                 getProxy().getPluginManager().registerListener( this, listener ) );
-
-        /*for ( Listener listener : new Listener[]{ new LoginListener( this ), new MessageListener(),
-                new PermissionListener( this ), new ServerSwitchListener( this ) } )
-        {
-            getProxy().getPluginManager().registerListener( this, listener );
-        }*/
     }
 
     private void setupServer()
@@ -138,7 +134,7 @@ public class fPermsPlugin extends Plugin
         return GSON;
     }
 
-    public static fPermsPlugin getInstance()
+    public fPermsPlugin getInstance()
     {
         return plugin;
     }

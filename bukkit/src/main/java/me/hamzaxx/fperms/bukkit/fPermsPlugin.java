@@ -51,8 +51,6 @@ public class fPermsPlugin extends JavaPlugin
     {
         saveDefaultConfig();
         config = new Config( this );
-        //getServer().getMessenger().registerOutgoingPluginChannel( this, "fPerms" );
-        //getServer().getMessenger().registerIncomingPluginChannel( this, "fPermsPlugin", new MessageListener() );
         Bukkit.getServicesManager().register( Chat.class, new ChatCompatibility( this ), this, ServicePriority.Highest );
         registerEvents();
         setupClient();
@@ -99,7 +97,6 @@ public class fPermsPlugin extends JavaPlugin
     public void onDisable()
     {
         kill();
-        //Permissions.clearPermissions();
     }
 
     private void registerEvents()
