@@ -25,6 +25,7 @@ import me.hamzaxx.fperms.bukkit.netty.ClientHandler;
 import me.hamzaxx.fperms.bukkit.permissions.PermissionsInjector;
 import me.hamzaxx.fperms.bukkit.permissions.fPermsPermissible;
 import me.hamzaxx.fperms.bukkit.vault.ChatCompatibility;
+import me.hamzaxx.fperms.common.netty.ClientBye;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
@@ -32,7 +33,6 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.*;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -96,7 +96,8 @@ public class fPermsPlugin extends JavaPlugin
     @Override
     public void onDisable()
     {
-        kill();
+        if ( channel.isActive() )
+            kill();
     }
 
     private void registerEvents()
@@ -111,9 +112,19 @@ public class fPermsPlugin extends JavaPlugin
 
     public void kill()
     {
-        channel.closeFuture();
-        channel.close();
-        group.shutdownGracefully();
+        try
+        {
+            getChannel().writeAndFlush( new String[]{
+                    "clientBye", getGson().toJson( new ClientBye( getConfigiuration().getServerName() ) ) } ).await();
+        } catch ( InterruptedException e )
+        {
+            e.printStackTrace();
+        } finally
+        {
+            channel.closeFuture();
+            channel.close();
+            group.shutdownGracefully();
+        }
     }
 
     private void setupClient()
@@ -131,7 +142,7 @@ public class fPermsPlugin extends JavaPlugin
                         protected void initChannel(SocketChannel socketChannel) throws Exception
                         {
                             socketChannel.pipeline().addLast( new ObjectDecoder(
-                                            ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(), clientHandler );
+                                    ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(), clientHandler );
                         }
 
                     } );
@@ -139,7 +150,7 @@ public class fPermsPlugin extends JavaPlugin
         } catch ( InterruptedException e )
         {
             kill();
-            Bukkit.getPluginManager().disablePlugin( this );
+            Bukkit.shutdown();
         }
     }
 

@@ -5,12 +5,9 @@
 
 import com.google.gson.Gson;
 import me.hamzaxx.fperms.bukkit.data.PlayerData;
-import me.hamzaxx.fperms.shared.netty.Change;
-import me.hamzaxx.fperms.shared.netty.ChangeType;
-import me.hamzaxx.fperms.shared.permissions.Permission;
-import org.bukkit.Location;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
+import me.hamzaxx.fperms.common.netty.Change;
+import me.hamzaxx.fperms.common.netty.ChangeType;
+import me.hamzaxx.fperms.common.permissions.Permission;
 
 import java.io.*;
 import java.util.HashMap;

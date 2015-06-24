@@ -5,7 +5,7 @@
 
 package me.hamzaxx.fperms.bungee.data;
 
-import me.hamzaxx.fperms.shared.permissions.Permission;
+import me.hamzaxx.fperms.common.permissions.Permission;
 
 import java.util.List;
 import java.util.Map;

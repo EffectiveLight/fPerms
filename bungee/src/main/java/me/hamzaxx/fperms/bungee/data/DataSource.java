@@ -36,4 +36,6 @@ public interface DataSource
     GroupData getPlayerGroup(UUID playerUUID);
 
     PlayerData getPlayerData(UUID playerUUID);
+
+    void close();
 }

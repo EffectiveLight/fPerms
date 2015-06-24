@@ -10,7 +10,7 @@
     <parent>
         <artifactId>fperms</artifactId>
         <groupId>me.hamzaxx</groupId>
-        <version>0.90-ALPHA</version>
+        <version>0.91-ALPHA</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>me.hamzaxx</groupId>
             <artifactId>common</artifactId>
-            <version>0.90-ALPHA</version>
+            <version>0.91-ALPHA</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>

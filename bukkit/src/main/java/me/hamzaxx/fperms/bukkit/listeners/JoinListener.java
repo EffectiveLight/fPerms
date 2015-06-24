@@ -26,6 +26,11 @@ public class JoinListener implements Listener
     @EventHandler(ignoreCancelled = true, priority = EventPriority.LOWEST)
     public void onLogin(PlayerLoginEvent event)
     {
+        if ( !plugin.getPlayerData().containsKey( event.getPlayer().getName() ) )
+        {
+            event.disallow( PlayerLoginEvent.Result.KICK_OTHER, "Permissions not set!" );
+            return;
+        }
         new PermissionsInjector( event.getPlayer(),
                 new fPermsPermissible( event.getPlayer(), plugin ) ).inject();
         // Permissions.addPlayer( event.getPlayer() );

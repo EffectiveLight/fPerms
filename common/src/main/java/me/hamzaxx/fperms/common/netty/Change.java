@@ -3,20 +3,28 @@
  * All rights reserved.
  */
 
-package me.hamzaxx.fperms.shared.netty;
+package me.hamzaxx.fperms.common.netty;
+
+import com.google.gson.annotations.Expose;
 
 public class Change
 {
-
+    @Expose
     private ChangeType changeType;
-    private String data;
+    @Expose
     private String name;
+    private String data;
 
     public Change(ChangeType changeType, String name, String data)
     {
         this.changeType = changeType;
         this.name = name;
         this.data = data;
+    }
+
+    public Change(ChangeType changeType, String name) {
+        this.changeType = changeType;
+        this.name = name;
     }
 
     public ChangeType getChangeType()

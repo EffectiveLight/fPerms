@@ -6,8 +6,8 @@
 package me.hamzaxx.fperms.bukkit.data;
 
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
-import me.hamzaxx.fperms.shared.permissions.Permission;
-import me.hamzaxx.fperms.shared.permissions.PermissionData;
+import me.hamzaxx.fperms.common.permissions.Permission;
+import me.hamzaxx.fperms.common.permissions.PermissionData;
 import org.bukkit.Bukkit;
 
 import java.io.Serializable;
@@ -93,13 +93,7 @@ public class PlayerData implements Data, Serializable
     public void setPermission(Permission permission)
     {
         permissions.put( permission.getName(), permission );
-        effectivePermissions.values().forEach( perms -> {
-            org.bukkit.permissions.Permission perm = Bukkit.getPluginManager().getPermission( perms.getName() );
-            perm.getChildren().entrySet().stream().forEach( entry -> {
-                if ( !effectivePermissions.containsKey( perm.getName() ) )
-                    effectivePermissions.put( perm.getName(), new Permission( perm.getName(), perms.getLocation(), entry.getValue() ) );
-            } );
-        } );
+        recalculatePermissions();
     }
 
     @Override
@@ -132,11 +126,19 @@ public class PlayerData implements Data, Serializable
         effectivePermissions.putAll( permissions );
         effectivePermissions.putAll( getGroup().getPermissions() );
         effectivePermissions.values().forEach( permission -> {
-            org.bukkit.permissions.Permission perm = Bukkit.getPluginManager().getPermission( permission.getName() );
-            perm.getChildren().entrySet().stream().forEach( entry -> {
-                if ( !effectivePermissions.containsKey( perm.getName() ) )
-                    effectivePermissions.put( perm.getName(), new Permission( perm.getName(), permission.getLocation(), entry.getValue() ) );
-            } );
+            org.bukkit.permissions.Permission perm = null;//plugin.getServer().getPluginManager().getPermission( permission.getName() );
+            if ( perm != null )
+            {
+                Map<String, Boolean> children = perm.getChildren();
+                if (children != null)
+                {
+                    children.entrySet().stream().forEach( entry -> {
+                        if ( !effectivePermissions.containsKey( perm.getName() ) )
+                            effectivePermissions.put( perm.getName(), new Permission( perm.getName(), permission.getLocation(), entry.getValue() ) );
+
+                    } );
+                }
+            }
         } );
     }
 }

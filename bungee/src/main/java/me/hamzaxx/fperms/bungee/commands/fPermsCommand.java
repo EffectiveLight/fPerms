@@ -5,16 +5,17 @@
 
 package me.hamzaxx.fperms.bungee.commands;
 
+import com.google.common.base.Joiner;
 import me.hamzaxx.fperms.bungee.data.Data;
 import me.hamzaxx.fperms.bungee.data.DataSource;
 import me.hamzaxx.fperms.bungee.data.GroupData;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
 import me.hamzaxx.fperms.bungee.util.Util;
-import me.hamzaxx.fperms.shared.netty.Change;
-import me.hamzaxx.fperms.shared.netty.ChangeType;
-import me.hamzaxx.fperms.shared.permissions.Location;
-import me.hamzaxx.fperms.shared.permissions.LocationType;
-import me.hamzaxx.fperms.shared.permissions.Permission;
+import me.hamzaxx.fperms.common.netty.Change;
+import me.hamzaxx.fperms.common.netty.ChangeType;
+import me.hamzaxx.fperms.common.permissions.Location;
+import me.hamzaxx.fperms.common.permissions.LocationType;
+import me.hamzaxx.fperms.common.permissions.Permission;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -22,31 +23,32 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class fPermsCommand extends Command
 {
 
     private DataSource dataSource;
 
+    private Joiner joiner = Joiner.on( " ," );
+
     private final String[] HELP = new String[]{
             null,
-            "&3/fPerms group &b<group> &3create",
+            "&3/fPerms group &b<group> &3<create/remove>",
             "&3/fPerms group &b<group> &3add &b<player>",
-            "&3/fPerms group &b<group> &3set &bbungee <permission> <value> [server]",
-            "&3/fPerms group &b<group> &3set &bbukkit <permission> <value> [world]",
+            "&3/fPerms group &b<group> &3set bungee &b<permission> <value> [server]",
+            "&3/fPerms group &b<group> &3set bukkit &b<permission> <value> [world]",
             "&3/fPerms group &b<group> &3unset &b<bungee/bukkit> <permission>",
             "&3/fPerms group &b<group> &3prefix &b<prefix>",
             "&3/fPerms group &b<group> &3suffix &b<suffix>",
             "&3/fPerms group &b<group> &3parent &b<parents...>",
-            "&3/fPerms player &b<player> &3set &bbungee <permission> <value> [server]",
-            "&3/fPerms player &b<player> &3set &bbungee <permission> <value> [world]",
+            "&3/fPerms player &b<player> &3set bungee &b<permission> <value> [server]",
+            "&3/fPerms player &b<player> &3set bukkit &b<permission> <value> [world]",
             "&3/fPerms group &b<group> &3unset &b<bungee/bukkit> <permission>",
             "&3/fPerms player &b<player> &3prefix &b<prefix>",
             "&3/fPerms player &b<player> &3suffix &b<suffix>",
-            "&6&m&n-------------------------" };
+            "&6&m---------------------------------------------------------" };
     private fPermsPlugin plugin;
 
     public fPermsCommand(fPermsPlugin plugin)
@@ -60,7 +62,7 @@ public class fPermsCommand extends Command
     @Override
     public void execute(CommandSender commandSender, String[] args)
     {
-        if ( args.length < 2 || args.length > 6 )
+        if ( args.length < 2 || args.length > 7 )
         {
             sendHelp( commandSender );
             return;
@@ -120,19 +122,24 @@ public class fPermsCommand extends Command
                     Util.sendMessage( commandSender, "&3Usage: /fPerms group &b<group> &3create" );
                 }
                 break;
+            case "remove":
+                // TODO: Add group removing
+                break;
             case "set":
-                if ( args.length == 6 )
+                plugin.getLogger().info( String.valueOf( args.length ) );
+                if ( args.length == 7 )
                 {
-                    handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 2 ],
-                            args[ 3 ], Boolean.parseBoolean( args[ 4 ] ), args[ 5 ] );
-                } else if ( args.length == 5 )
+                    handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 3 ],
+                            args[ 4 ], Boolean.parseBoolean( args[ 5 ] ), args[ 6 ] );
+                } else if ( args.length == 6 )
                 {
+                    System.out.println( "called" );
                     handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 3 ],
                             args[ 4 ], Boolean.parseBoolean( args[ 5 ] ), null );
                 } else
                 {
                     Util.sendMessage( commandSender,
-                            "&3Usage: /fPerms <group/player> &b<group/player> &3set &b<permission> <value> [server/world]" );
+                            "&3Usage: /fPerms <group/player> &b<group/player> &3set <bungee/bukkit> &b<permission> <value> [server/world]" );
                 }
                 break;
             case "unset":
@@ -143,7 +150,7 @@ public class fPermsCommand extends Command
                 } else
                 {
                     Util.sendMessage( commandSender,
-                            "&3Usage: /fPerms <group/player> &b<group/player> &3unset &b<permission> <value>" );
+                            "&3Usage: /fPerms <group/player> &b<group/player> &3unset <bungee/bukkit> &b<permission> <value>" );
                 }
                 break;
             case "prefix":
@@ -174,28 +181,25 @@ public class fPermsCommand extends Command
                         if ( handleGroup( commandSender, args[ 1 ] ) )
                         {
                             Data groupData = dataSource.getGroup( args[ 1 ] );
-                            if ( args[ 2 ].contains( "," ) )
+                            if ( args[ 3 ].contains( "," ) )
                             {
                                 String[] parents = args[ 3 ].split( "," );
-                                List<String> groups = new CopyOnWriteArrayList<>();
+                                List<String> groups = new ArrayList<>();
                                 for ( String parent : parents )
                                 {
-                                    if ( !dataSource.groupExists( parent ) )
-                                    {
-                                        Util.sendError( commandSender, "Group %s doesn't exist!", parent );
-                                        return;
-                                    }
+                                    if ( !handleGroup( commandSender, parent ) )
+                                        continue;
                                     groups.add( parent );
                                 }
                                 groupData.addParents( groups );
                                 plugin.sentToAll( new Change( ChangeType.REFRESH_PERMISSIONS, groupData.getGroupName(),
                                         plugin.getGson().toJson( groupData.getEffectiveBukkitPermissions() ) ) );
                                 Util.sendSuccess( commandSender, "Groups %s added as parents to %s!",
-                                        Arrays.toString( parents )
-                                                .replace( "[ ", "" ).replace( " ]", "" ), groupData.getGroupName() );
+                                        joiner.join( parents ), groupData.getGroupName() );
+
                             } else
                             {
-                                if ( dataSource.groupExists( args[ 3 ] ) )
+                                if ( handleGroup( commandSender, args[ 3 ] ) )
                                 {
                                     groupData.addParent( args[ 3 ] );
                                     plugin.sentToAll( new Change( ChangeType.REFRESH_PERMISSIONS, groupData.getGroupName(),
@@ -231,6 +235,7 @@ public class fPermsCommand extends Command
             if ( handleGroup( commandSender, object ) )
             {
                 Data groupData = dataSource.getGroup( object );
+                System.out.println( option );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
                     if ( locationName == null )
@@ -242,7 +247,7 @@ public class fPermsCommand extends Command
                     }
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s on Bukkit!",
                             permission, value, groupData.getGroupName() );
-                } else if ( object.equalsIgnoreCase( "bukkit" ) )
+                } else if ( option.equalsIgnoreCase( "bukkit" ) )
                 {
                     Permission perm;
                     if ( locationName == null )
@@ -259,8 +264,9 @@ public class fPermsCommand extends Command
                             permission, value, groupData.getGroupName() );
                 } else
                 {
+                    System.out.println( "called error" );
                     Util.sendMessage( commandSender,
-                            "&3/fPerms group &b<group> &3set &b<bungee/bukkit> <permission> <value>" );
+                            "&3/fPerms group &b<group> &3set &b<bungee/bukkit> <permission> <value> [server/world]" );
                 }
             }
         } else if ( task.equalsIgnoreCase( "player" ) )
@@ -300,7 +306,7 @@ public class fPermsCommand extends Command
                 } else
                 {
                     Util.sendMessage( commandSender,
-                            "&3/fPerms player &b<player> &3set &b<bungee/bukkit> <permission> <value>" );
+                            "&3/fPerms player &b<player> &3set &b<bungee/bukkit> <permission> <value> [server/world]" );
                 }
             }
         } else

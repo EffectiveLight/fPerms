@@ -6,8 +6,8 @@
 package me.hamzaxx.fperms.bukkit.data;
 
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
-import me.hamzaxx.fperms.shared.permissions.Permission;
-import me.hamzaxx.fperms.shared.permissions.PermissionData;
+import me.hamzaxx.fperms.common.permissions.Permission;
+import me.hamzaxx.fperms.common.permissions.PermissionData;
 
 import java.util.Map;
 
@@ -72,22 +72,23 @@ public class GroupData implements Data
     public void setPermission(Permission permission)
     {
         permissions.put( permission.getName(), permission );
-        plugin.getPlayerData().values().stream().filter( playerData ->
-                getName().equals( playerData.getName() ) ).forEach( playerData ->
-                playerData.setPermission( permission ) );
+        recalculatePlayerPermissions();
     }
 
     @Override
     public void unsetPermission(String permission)
     {
         permissions.remove( permission );
-        plugin.getPlayerData().values().stream().filter( playerData ->
-                getName().equals( playerData.getName() ) ).forEach( PlayerData::recalculatePermissions );
+        recalculatePlayerPermissions();
     }
 
     public void setPermissions(Map<String, Permission> permissions)
     {
         this.permissions = permissions;
+        recalculatePlayerPermissions();
+    }
+
+    private void recalculatePlayerPermissions() {
         plugin.getPlayerData().values().stream().filter( playerData ->
                 getName().equals( playerData.getName() ) ).forEach( PlayerData::recalculatePermissions );
     }

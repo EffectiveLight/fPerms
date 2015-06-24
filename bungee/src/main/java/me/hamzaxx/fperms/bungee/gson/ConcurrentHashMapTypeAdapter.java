@@ -8,7 +8,6 @@ package me.hamzaxx.fperms.bungee.gson;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
-import com.google.gson.internal.LinkedTreeMap;
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
@@ -52,7 +51,7 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
             return null;
         }
         Type aType = new TypeToken<Map<K, V>>() {}.getType();
-        Gson g = plugin.getGson();
+        Gson g = plugin.getExclusionaryGson();
         Map<K, V> ltm = g.fromJson( in, aType );
         return new ConcurrentHashMap<>( ltm );
     }
@@ -60,7 +59,7 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
     @Override
     public synchronized void write(JsonWriter out, ConcurrentMap<K, V> value) throws IOException
     {
-        Gson g = plugin.getGson();
+        Gson g = plugin.getExclusionaryGson();
         out.value( g.toJson( value ) );
     }
 }

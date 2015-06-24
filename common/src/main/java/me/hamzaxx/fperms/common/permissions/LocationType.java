@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-package me.hamzaxx.fperms.shared.permissions;
+package me.hamzaxx.fperms.common.permissions;
 
 public enum LocationType
 {

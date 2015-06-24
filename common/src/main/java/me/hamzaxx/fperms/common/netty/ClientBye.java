@@ -3,14 +3,14 @@
  * All rights reserved.
  */
 
-package me.hamzaxx.fperms.shared.netty;
+package me.hamzaxx.fperms.common.netty;
 
-public class ClientHello
+public class ClientBye
 {
-
     private String serverName;
 
-    public ClientHello(String serverName) {
+    public ClientBye(String serverName)
+    {
         this.serverName = serverName;
     }
 

@@ -19,23 +19,24 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import me.hamzaxx.fperms.bungee.commands.fPermsCommand;
 import me.hamzaxx.fperms.bungee.data.DataSource;
+import me.hamzaxx.fperms.bungee.data.redis.RedisDataSource;
 import me.hamzaxx.fperms.bungee.listeners.LoginListener;
 import me.hamzaxx.fperms.bungee.listeners.PermissionListener;
 import me.hamzaxx.fperms.bungee.listeners.ServerListener;
 import me.hamzaxx.fperms.bungee.netty.ServerHandler;
-import me.hamzaxx.fperms.shared.netty.Change;
-import me.hamzaxx.fperms.shared.netty.ServerBye;
+import me.hamzaxx.fperms.common.netty.Change;
+import me.hamzaxx.fperms.common.netty.ServerBye;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class fPermsPlugin extends Plugin
 {
-
-    private fPermsPlugin plugin;
 
     private DataSource dataSource;
 
@@ -44,34 +45,46 @@ public class fPermsPlugin extends Plugin
     private EventLoopGroup workerGroup;
     private ConcurrentMap<String, Channel> channels = new ConcurrentHashMap<>();
 
-    private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private Gson exclusionaryGson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private Gson gson = new Gson();
 
     @Override
     public void onEnable()
     {
-        plugin = this;
-        getProxy().registerChannel( "fPerms" );
-        getProxy().registerChannel( "fPermsPlugin" );
+        dataSource = new RedisDataSource( this );
+        getProxy().getScheduler().schedule( this, this::setupServer, 2, TimeUnit.SECONDS );
         getProxy().getPluginManager().registerCommand( this, new fPermsCommand( this ) );
         registerListeners();
-        setupServer();
-        /*getProxy().getScheduler().schedule( this, () -> {
-            System.out.println( "Sent message" );
-            getChannels().get( "hub" ).writeAndFlush( "uuid|" + UUID.randomUUID().toString() );
-        }, 25, TimeUnit.SECONDS );
-        dataSource = new RedisDataSource( this );*/
     }
 
     @Override
     public void onDisable()
     {
-        getChannels().values().forEach( channel ->
-                channel.writeAndFlush( new ServerBye( "BungeeCord shutdown" ) ) );
-        channel.closeFuture();
-        channel.close();
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
-        plugin = null;
+        kill();
+    }
+
+    private void kill()
+    {
+        getDataSource().close();
+        try
+        {
+            getChannels().values().forEach( channel -> {
+                try
+                {
+                    channel.writeAndFlush( new String[]{ "serverBye",
+                            getGson().toJson( new ServerBye( "BungeeCord shutdown" ) ) } ).await();
+                } catch ( InterruptedException e )
+                {
+                    e.printStackTrace();
+                }
+            } );
+        } finally
+        {
+            channel.closeFuture();
+            channel.close();
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
+        }
     }
 
     private void registerListeners()
@@ -86,6 +99,7 @@ public class fPermsPlugin extends Plugin
         bossGroup = new NioEventLoopGroup( 1 );
         workerGroup = new NioEventLoopGroup();
         ServerBootstrap b = new ServerBootstrap();
+        ServerHandler serverHandler = new ServerHandler( this );
         b.group( bossGroup, workerGroup )
                 .channel( NioServerSocketChannel.class )
                         //.handler( new LoggingHandler( LogLevel.INFO ) )
@@ -94,8 +108,7 @@ public class fPermsPlugin extends Plugin
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception
                     {
-                        socketChannel.pipeline().addLast( new ObjectDecoder( ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(),
-                                new ServerHandler( plugin ) );
+                        socketChannel.pipeline().addLast( new ObjectDecoder( ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(), serverHandler );
                     }
                 } );
         try
@@ -103,20 +116,27 @@ public class fPermsPlugin extends Plugin
             channel = b.bind( 6969 ).sync().channel();
         } catch ( InterruptedException e )
         {
-            e.printStackTrace();
+            kill();
         }
     }
 
 
+    public void sendToServer(ServerInfo server, Change change)
+    {
+        getChannels().get( server.getName() )
+                .writeAndFlush( new String[]{ "change", getExclusionaryGson().toJson( change ), change.getData() } );
+    }
+
     public void sendToServer(Server server, Change change)
     {
         getChannels().get( server.getInfo().getName() )
-                .writeAndFlush( new String[]{ "change", getGson().toJson( change ) } );
+                .writeAndFlush( new String[]{ "change", getExclusionaryGson().toJson( change ), change.getData() } );
     }
 
-    public void sentToAll(Change change) {
+    public void sentToAll(Change change)
+    {
         getChannels().values().forEach( channel ->
-                channel.writeAndFlush( new String[]{ "change", getGson().toJson( change  ) }) );
+                channel.writeAndFlush( new String[]{ "change", getExclusionaryGson().toJson( change ), change.getData() } ) );
     }
 
     public ConcurrentMap<String, Channel> getChannels()
@@ -129,13 +149,13 @@ public class fPermsPlugin extends Plugin
         return dataSource;
     }
 
-    public Gson getGson()
+    public Gson getExclusionaryGson()
     {
-        return GSON;
+        return exclusionaryGson;
     }
 
-    public fPermsPlugin getInstance()
+    public Gson getGson()
     {
-        return plugin;
+        return gson;
     }
 }

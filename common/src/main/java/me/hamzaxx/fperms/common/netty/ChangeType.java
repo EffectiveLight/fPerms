@@ -3,7 +3,7 @@
  * All rights reserved.
  */
 
-package me.hamzaxx.fperms.shared.netty;
+package me.hamzaxx.fperms.common.netty;
 
 public enum ChangeType
 {

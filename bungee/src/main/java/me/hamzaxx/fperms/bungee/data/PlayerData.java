@@ -6,8 +6,7 @@
 package me.hamzaxx.fperms.bungee.data;
 
 import com.google.gson.annotations.Expose;
-import me.hamzaxx.fperms.bungee.fPermsPlugin;
-import me.hamzaxx.fperms.shared.permissions.Permission;
+import me.hamzaxx.fperms.common.permissions.Permission;
 
 import java.util.List;
 import java.util.Map;
@@ -18,6 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 public class PlayerData implements Data
 {
 
+    @Expose
     private UUID playerUUID;
     @Expose
     private String group;
@@ -25,7 +25,6 @@ public class PlayerData implements Data
     private String prefix;
     @Expose
     private String suffix;
-    //private String effectiveBukkitPermissionsJson;
 
     @Expose
     private Map<String, Permission> bukkitPermissions;
@@ -34,14 +33,12 @@ public class PlayerData implements Data
 
     private Map<String, Permission> effectiveBukkitPermissions;
 
-    private fPermsPlugin plugin;
     private DataSource dataSource;
 
-    public PlayerData(fPermsPlugin plugin, DataSource dataSource, UUID playerUUID,
+    public PlayerData(DataSource dataSource, UUID playerUUID,
                       String group, String prefix, String suffix, Map<String, Permission>
                               bukkitPermissions, Map<String, Permission> bungeePermissions)
     {
-        this.plugin = plugin;
         this.dataSource = dataSource;
         this.playerUUID = playerUUID;
         this.group = group;
@@ -61,6 +58,11 @@ public class PlayerData implements Data
     {
         this.group = groupName;
         dataSource.savePlayer( this );
+    }
+
+    public void setDataSource(DataSource dataSource)
+    {
+        this.dataSource = dataSource;
     }
 
     @Override
@@ -111,17 +113,6 @@ public class PlayerData implements Data
         }
     }
 
-    /*@Override
-    public String getEffectiveBukkitPermissionsJson()
-    {
-        if ( effectiveBukkitPermissionsJson != null )
-        {
-            return effectiveBukkitPermissionsJson;
-        } else
-        {
-            return computeEffectiveBukkitPermissionsJson();
-        }
-    }*/
 
     @Override
     public List<String> getParents()
@@ -209,13 +200,6 @@ public class PlayerData implements Data
         this.effectiveBukkitPermissions = tempMap;
         return tempMap;
     }
-
-    /*public String computeEffectiveBukkitPermissionsJson()
-    {
-        String json = plugin.getGson().toJson( getEffectiveBukkitPermissions() );
-        this.effectiveBukkitPermissionsJson = json;
-        return json;
-    }*/
 
     public UUID getPlayerUUID()
     {
