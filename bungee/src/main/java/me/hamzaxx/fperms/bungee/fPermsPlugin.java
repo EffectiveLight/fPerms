@@ -30,6 +30,9 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.Server;
 import net.md_5.bungee.api.plugin.Plugin;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeUnit;
@@ -39,6 +42,7 @@ public class fPermsPlugin extends Plugin
 {
 
     private DataSource dataSource;
+    private Config config;
 
     private Channel channel;
     private EventLoopGroup bossGroup;
@@ -51,6 +55,8 @@ public class fPermsPlugin extends Plugin
     @Override
     public void onEnable()
     {
+        saveDefaultConfig();
+        config = new Config( this );
         dataSource = new RedisDataSource( this );
         getProxy().getScheduler().schedule( this, this::setupServer, 2, TimeUnit.SECONDS );
         getProxy().getPluginManager().registerCommand( this, new fPermsCommand( this ) );
@@ -61,6 +67,31 @@ public class fPermsPlugin extends Plugin
     public void onDisable()
     {
         kill();
+    }
+
+
+    private void saveDefaultConfig()
+    {
+        if ( !getDataFolder().exists() )
+        {
+            if ( getDataFolder().mkdir() )
+            {
+                getLogger().info( "Config folder created!" );
+            }
+        }
+
+        File file = new File( getDataFolder(), "config.yml" );
+
+        if ( !file.exists() )
+        {
+            try
+            {
+                Files.copy( getResourceAsStream( "config.yml" ), file.toPath() );
+            } catch ( IOException ex )
+            {
+                getProxy().getLogger().severe( ex.getMessage() );
+            }
+        }
     }
 
     private void kill()
@@ -112,7 +143,7 @@ public class fPermsPlugin extends Plugin
                 } );
         try
         {
-            channel = b.bind( 6969 ).sync().channel();
+            channel = b.bind( getConfig().getPort() ).sync().channel();
         } catch ( InterruptedException e )
         {
             kill();
@@ -136,6 +167,11 @@ public class fPermsPlugin extends Plugin
     {
         getChannels().values().forEach( channel ->
                 channel.writeAndFlush( new String[]{ "change", getExclusionaryGson().toJson( change ), change.getData() } ) );
+    }
+
+    public Config getConfig()
+    {
+        return config;
     }
 
     public ConcurrentMap<String, Channel> getChannels()

@@ -15,6 +15,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,41 +30,41 @@ public class RedisDataSource implements DataSource
     private final fPermsPlugin plugin;
     private JedisPool pool;
 
-    //private Gson gson;
-
     private final String PREFIX = "fPerms:";
 
-    private final ConcurrentMap<String, GroupData> GROUP_CACHE = new ConcurrentHashMap<>();
-    private final ConcurrentMap<UUID, PlayerData> PLAYER_GROUP_CACHE = new ConcurrentHashMap<>();
+    private ConcurrentMap<String, GroupData> groupCache = new ConcurrentHashMap<>();
+    private ConcurrentMap<UUID, PlayerData> playerCache = new ConcurrentHashMap<>();
 
     public RedisDataSource(fPermsPlugin plugin)
     {
         this.plugin = plugin;
-        /*GsonBuilder gsonBuilder = new GsonBuilder();
-         gsonBuilder.registerTypeAdapter( new TypeToken<List<String>>() {}.getType(), new CopyOnWriteArrayListTypeAdapter<String>() );
-        gsonBuilder.registerTypeAdapter( new TypeToken<ConcurrentMap<String, Permission>>()
-        {
-        }.getType(), new ConcurrentHashMapTypeAdapter<String, Permission>( plugin ) );
-        gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();*/
         ProxyServer.getInstance().getScheduler().runAsync( plugin, () ->
-                pool = new JedisPool( new JedisPoolConfig(), "mc.atomic-cloud.net", 6379, 0 ) );
+                pool = new JedisPool( new JedisPoolConfig(),
+                        plugin.getConfig().getAddress().getHostName(),
+                        plugin.getConfig().getAddress().getPort(), 0 ) );
         ProxyServer.getInstance().getScheduler().schedule( plugin, () -> {
-            if ( !groupExists( "default" ) )
-                addGroup( "default" );
-            updateGroups();
+            try
+            {
+                if ( !groupExists( plugin.getConfig().getDefaultGroupName() ) )
+                    addGroup( plugin.getConfig().getDefaultGroupName() );
+                updateGroups();
+            } catch ( JedisConnectionException e ) {
+                plugin.getLogger().severe( "Couldn't connect to Redis, Proxy shutting down." );
+                plugin.getProxy().stop();
+            }
         }, 2, TimeUnit.SECONDS );
     }
 
     @Override
     public ConcurrentMap<UUID, PlayerData> getPlayerCache()
     {
-        return PLAYER_GROUP_CACHE;
+        return playerCache;
     }
 
     @Override
     public ConcurrentMap<String, GroupData> getGroups()
     {
-        return GROUP_CACHE;
+        return groupCache;
     }
 
     private String getJson(String groupName)
@@ -98,7 +99,7 @@ public class RedisDataSource implements DataSource
     @Override
     public boolean groupExists(String groupName)
     {
-        return GROUP_CACHE.containsKey( groupName.toLowerCase() )
+        return groupCache.containsKey( groupName.toLowerCase() )
                 || containsKey( PREFIX + groupName.toLowerCase() );
     }
 
@@ -107,7 +108,7 @@ public class RedisDataSource implements DataSource
     {
         Data group = new GroupData( plugin, groupName, "", "",
                 new ArrayList<>(), new HashMap<>(), new HashMap<>() );
-        GROUP_CACHE.put( groupName.toLowerCase(), ( GroupData ) group );
+        groupCache.put( groupName.toLowerCase(), ( GroupData ) group );
         String json = plugin.getExclusionaryGson().toJson( group );
         putJson( groupName, json );
         try ( Jedis jedis = pool.getResource() )
@@ -120,9 +121,9 @@ public class RedisDataSource implements DataSource
     @Override
     public GroupData getGroup(String name)
     {
-        if ( GROUP_CACHE.containsKey( name.toLowerCase() ) )
+        if ( groupCache.containsKey( name.toLowerCase() ) )
         {
-            return GROUP_CACHE.get( name.toLowerCase() );
+            return groupCache.get( name.toLowerCase() );
         }
         return updateGroup( name );
     }
@@ -130,19 +131,18 @@ public class RedisDataSource implements DataSource
     @Override
     public GroupData updateGroup(String name)
     {
-        String json = getJson( name.toLowerCase() );
-        System.out.println( json );
-        GroupData group = plugin.getExclusionaryGson().fromJson( json, GroupData.class );
+
+        GroupData group = plugin.getExclusionaryGson().fromJson( getJson( name.toLowerCase() ), GroupData.class );
         group.setPlugin( plugin );
         group.setDataSource( this );
-        GROUP_CACHE.put( group.getGroupName().toLowerCase(), group );
+        groupCache.put( group.getGroupName().toLowerCase(), group );
         return group;
     }
 
     @Override
     public boolean playerExists(UUID playerUUID)
     {
-        return PLAYER_GROUP_CACHE.containsKey( playerUUID )
+        return playerCache.containsKey( playerUUID )
                 || containsKey( PREFIX + playerUUID.toString() );
     }
 
@@ -153,7 +153,7 @@ public class RedisDataSource implements DataSource
         {
             PlayerData playerData = new PlayerData( this, player.getUniqueId(), groupName, "",
                     "", new HashMap<>(), new HashMap<>() );
-            PLAYER_GROUP_CACHE.put( player.getUniqueId(), playerData );
+            playerCache.put( player.getUniqueId(), playerData );
             String json = plugin.getExclusionaryGson().toJson( playerData );
             put( PREFIX + player.getUniqueId().toString(), json );
         } else
@@ -165,13 +165,13 @@ public class RedisDataSource implements DataSource
     @Override
     public GroupData getPlayerGroup(UUID playerUUID)
     {
-        if ( PLAYER_GROUP_CACHE.containsKey( playerUUID ) )
-            return getGroup( PLAYER_GROUP_CACHE.get( playerUUID ).getGroupName() );
+        if ( playerCache.containsKey( playerUUID ) )
+            return getGroup( playerCache.get( playerUUID ).getGroupName() );
         if ( playerExists( playerUUID ) )
         {
             PlayerData playerData = plugin.getExclusionaryGson().fromJson( get( PREFIX + playerUUID ), PlayerData.class );
             playerData.setDataSource( this );
-            PLAYER_GROUP_CACHE.put( playerUUID, playerData );
+            playerCache.put( playerUUID, playerData );
             return getGroup( playerData.getGroupName() );
         }
         return null;
@@ -180,8 +180,8 @@ public class RedisDataSource implements DataSource
     @Override
     public PlayerData getPlayerData(UUID playerUUID)
     {
-        if ( PLAYER_GROUP_CACHE.containsKey( playerUUID ) )
-            return PLAYER_GROUP_CACHE.get( playerUUID );
+        if ( playerCache.containsKey( playerUUID ) )
+            return playerCache.get( playerUUID );
         else
         {
             PlayerData playerData = plugin.getExclusionaryGson().fromJson( get( PREFIX + playerUUID.toString() ), PlayerData.class );
