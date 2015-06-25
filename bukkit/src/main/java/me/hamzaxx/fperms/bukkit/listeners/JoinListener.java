@@ -28,11 +28,10 @@ public class JoinListener implements Listener
     {
         if ( !plugin.getPlayerData().containsKey( event.getPlayer().getName() ) )
         {
-            event.disallow( PlayerLoginEvent.Result.KICK_OTHER, "Permissions not set!" );
+            event.disallow( PlayerLoginEvent.Result.KICK_OTHER, plugin.getConfigiuration().getFastJoinMessage() );
             return;
         }
         new PermissionsInjector( event.getPlayer(),
                 new fPermsPermissible( event.getPlayer(), plugin ) ).inject();
-        // Permissions.addPlayer( event.getPlayer() );
     }
 }

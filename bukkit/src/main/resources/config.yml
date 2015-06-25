@@ -5,3 +5,6 @@ server-name: hub
 # Should match up with the broadcast address inside,
 # fPerms config Bungeecord's end
 server-address: 127.0.0.1:6969
+
+messages:
+  fast-join: "&cYou have joined the server too fast."

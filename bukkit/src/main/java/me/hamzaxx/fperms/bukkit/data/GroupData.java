@@ -21,24 +21,13 @@ public class GroupData implements Data
     private String suffix;
     private Map<String, Permission> permissions;
 
-    public GroupData(fPermsPlugin plugin, String name, String prefix, String suffix, Map<String, Permission> permissions)
-    {
-        this.plugin = plugin;
-        this.name = name;
-        this.prefix = prefix;
-        this.suffix = suffix;
-        this.permissions = permissions;
-    }
-
     public GroupData(fPermsPlugin plugin, PermissionData data)
     {
         this.plugin = plugin;
         this.name = data.getName();
         this.prefix = data.getPrefix();
         this.suffix = data.getSuffix();
-        this.permissions = new HashMap<>();
-        data.getPermissions().forEach( permission ->
-                permissions.put( permission.getName(), permission ) );
+        this.permissions = data.getPermissions();
     }
 
     @Override

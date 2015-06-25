@@ -42,9 +42,7 @@ public class PlayerData implements Data, Serializable
         this.groupName = data.getName();
         this.prefix = data.getPrefix();
         this.suffix = data.getSuffix();
-        this.permissions = new HashMap<>();
-        data.getPermissions().forEach( permission ->
-                permissions.put( permission.getName(), permission ) );
+        this.permissions = data.getPermissions();
         effectivePermissions = new HashMap<>();
         recalculatePermissions();
     }

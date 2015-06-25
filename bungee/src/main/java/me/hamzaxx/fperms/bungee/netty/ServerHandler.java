@@ -9,12 +9,14 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import me.hamzaxx.fperms.bungee.data.PlayerData;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
 import me.hamzaxx.fperms.common.netty.Change;
 import me.hamzaxx.fperms.common.netty.ChangeType;
 import me.hamzaxx.fperms.common.netty.ClientBye;
 import me.hamzaxx.fperms.common.netty.ClientHello;
 import me.hamzaxx.fperms.common.permissions.PermissionData;
+import net.md_5.bungee.api.config.ServerInfo;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -54,7 +56,6 @@ public class ServerHandler extends SimpleChannelInboundHandler<String[]>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String[] msg) throws Exception
     {
-        System.out.println( Arrays.toString( msg ) );
         switch ( msg[ 0 ] )
         {
             case "clientHello":
@@ -63,11 +64,20 @@ public class ServerHandler extends SimpleChannelInboundHandler<String[]>
                 plugin.getChannels().put( hello.getServerName(), ctx.channel() );
                 plugin.getDataSource().getGroups().values().forEach( groupData -> {
                     PermissionData data = new PermissionData( groupData.getGroupName(),
-                            groupData.getPrefix(), groupData.getSuffix(), groupData.getEffectiveBukkitPermissions().values() );
-                    plugin.getLogger().info( groupData.getGroupName() );
+                            groupData.getPrefix(), groupData.getSuffix(), groupData.getEffectiveBukkitPermissions() );
                     ctx.writeAndFlush( new String[]{ "change", plugin.getGson().toJson(
                             new Change( ChangeType.GROUP, groupData.getGroupName() ) ), plugin.getGson().toJson( data ) } );
                 } );
+                ServerInfo serverInfo = plugin.getProxy().getServerInfo( hello.getServerName() );
+                if ( !serverInfo.getPlayers().isEmpty() )
+                {
+                    serverInfo.getPlayers().forEach( player -> {
+                        PlayerData playerData = plugin.getDataSource().getPlayerData( player.getUniqueId() );
+                        plugin.sendToServer( serverInfo, new Change( ChangeType.PLAYER, player.getName(),
+                                plugin.getGson().toJson( new PermissionData( playerData.getGroupName(), playerData.getPrefix(),
+                                        playerData.getSuffix(), playerData.getBukkitPermissions() ) ) ) );
+                    } );
+                }
                 break;
             case "clientBye":
                 ClientBye bye = plugin.getGson().fromJson( msg[ 1 ], ClientBye.class );

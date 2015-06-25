@@ -73,7 +73,6 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
     @Override
     protected void channelRead0(ChannelHandlerContext chx, String[] msg) throws Exception
     {
-        System.out.println( Arrays.toString( msg ) );
         switch ( msg[ 0 ] )
         {
             case "serverBye":

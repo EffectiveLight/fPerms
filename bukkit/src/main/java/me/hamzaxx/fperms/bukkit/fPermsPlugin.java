@@ -18,7 +18,6 @@ import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import me.hamzaxx.fperms.bukkit.data.GroupData;
 import me.hamzaxx.fperms.bukkit.data.PlayerData;
-import me.hamzaxx.fperms.bukkit.listeners.CommandListener;
 import me.hamzaxx.fperms.bukkit.listeners.JoinListener;
 import me.hamzaxx.fperms.bukkit.listeners.LeaveListener;
 import me.hamzaxx.fperms.bukkit.netty.ClientHandler;
@@ -28,7 +27,6 @@ import me.hamzaxx.fperms.bukkit.vault.ChatCompatibility;
 import me.hamzaxx.fperms.common.netty.ClientBye;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -36,6 +34,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
 
 public class fPermsPlugin extends JavaPlugin
 {
@@ -57,43 +56,8 @@ public class fPermsPlugin extends JavaPlugin
             Bukkit.getServicesManager().register( Chat.class, new ChatCompatibility( this ), this, ServicePriority.Highest );
         registerEvents();
         setupClient();
-        handleTempData();
         Bukkit.getOnlinePlayers().forEach( player ->
                 new PermissionsInjector( player, new fPermsPermissible( player, this ) ).inject() );
-    }
-
-    @SuppressWarnings("unchecked")
-    private void handleTempData()
-    {
-        File dataFile = new File( getDataFolder().getPath() + File.separator + "temp.dat" );
-        if ( dataFile.exists() )
-        {
-            if ( dataFile.length() != 0 )
-            {
-                try ( ObjectInputStream in = new ObjectInputStream( new FileInputStream( dataFile ) ) )
-                {
-                    playerCache = ( HashMap<String, PlayerData> ) in.readObject();
-                    groupCache = ( HashMap<String, GroupData> ) in.readObject();
-                    new PrintWriter( dataFile ).close();
-                } catch ( ClassNotFoundException | IOException e )
-                {
-                    e.printStackTrace();
-                }
-                getLogger().info( "Data persisted!" );
-            }
-        } else
-        {
-            try
-            {
-                if ( dataFile.createNewFile() )
-                {
-                    getLogger().info( "Saved temp data file!" );
-                }
-            } catch ( IOException e )
-            {
-                e.printStackTrace();
-            }
-        }
     }
 
     @Override
@@ -105,20 +69,16 @@ public class fPermsPlugin extends JavaPlugin
 
     private void registerEvents()
     {
-        for ( Listener listener : new Listener[]{
-                new JoinListener( this ), new LeaveListener( this ),
-                new CommandListener( this ) } )
-        {
-            getServer().getPluginManager().registerEvents( listener, this );
-        }
+        Stream.of( new JoinListener( this ), new LeaveListener( this ) ).forEach( listener ->
+                getServer().getPluginManager().registerEvents( listener, this ) );
     }
 
     public void kill()
     {
         try
         {
-            getChannel().writeAndFlush( new String[]{
-                    "clientBye", getGson().toJson( new ClientBye( getConfigiuration().getServerName() ) ) } ).await();
+            getChannel().writeAndFlush( new String[]{ "clientBye", getGson().toJson(
+                    new ClientBye( getConfigiuration().getServerName() ) ) } ).await();
         } catch ( InterruptedException e )
         {
             e.printStackTrace();

@@ -5,6 +5,7 @@
 
 package me.hamzaxx.fperms.bukkit;
 
+import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
@@ -14,6 +15,7 @@ public class Config
 {
     private String serverName;
     private InetSocketAddress serverAddress;
+    private String fastJoinMessage;
 
     public Config(Plugin plugin)
     {
@@ -24,9 +26,10 @@ public class Config
             serverAddress = new InetSocketAddress( address[ 0 ], Integer.parseInt( address[ 1 ] ) );
         } catch ( NumberFormatException e )
         {
-            plugin.getLogger().severe( "Valid server address wasn't provided, disabling." );
-            Bukkit.getPluginManager().disablePlugin( plugin );
+            plugin.getLogger().severe( "Valid server address wasn't provided, shutting down server." );
+            Bukkit.shutdown();
         }
+        fastJoinMessage = ChatColor.translateAlternateColorCodes( '&', plugin.getConfig().getString( "messages.fast-join" ) );
     }
 
     public String getServerName()
@@ -37,5 +40,10 @@ public class Config
     public InetSocketAddress getServerAddress()
     {
         return serverAddress;
+    }
+
+    public String getFastJoinMessage()
+    {
+        return fastJoinMessage;
     }
 }

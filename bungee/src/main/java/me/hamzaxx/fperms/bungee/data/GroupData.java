@@ -160,7 +160,6 @@ public class GroupData implements Data
             }
             getEffectiveBukkitPermissions().remove( permission );
             getBukkitPermissions().remove( permission );
-            System.out.println( plugin.getGson().toJson( this ) );
             dataSource.saveGroup( this );
             dataSource.getPlayerCache().values().stream().filter( playerData ->
                     playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach(

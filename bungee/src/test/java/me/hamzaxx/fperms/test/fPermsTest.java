@@ -8,7 +8,6 @@ package me.hamzaxx.fperms.test;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import me.hamzaxx.fperms.bungee.data.GroupData;
-import me.hamzaxx.fperms.bungee.util.MapMaker;
 import me.hamzaxx.fperms.common.permissions.Permission;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -163,32 +162,6 @@ public class fPermsTest
         TextComponent anotherComponent = new TextComponent( "World" );
         textComponent.addExtra( " " + anotherComponent.toString() );
         System.out.println( textComponent.toLegacyText() );
-    }
-
-    @Test
-    public void testMapPersistence()
-    {
-        ConcurrentMap<String, Boolean> map1 = new ConcurrentHashMap<>();
-        map1.put( "hi1", true );
-        ConcurrentMap<String, Boolean> map2 = new ConcurrentHashMap<>();
-        map2.put( "hi2", true );
-        MapMaker mapMaker = new MapMaker( map1 );
-        MapMaker maker = new MapMaker( map2 );
-        ConcurrentMap<String, MapMaker> maps = new ConcurrentHashMap<>();
-        maps.put( "maker1", mapMaker );
-        maps.put( "maker2", maker );
-        for ( Map.Entry<String, MapMaker> mapMaker1 : maps.entrySet() )
-        {
-            if ( mapMaker1.getValue().equals( mapMaker ) )
-            {
-                maps.remove( mapMaker1.getKey() );
-            }
-        }
-
-        for ( String s : maps.keySet() )
-        {
-            System.out.println( s );
-        }
     }
 
     @Test
