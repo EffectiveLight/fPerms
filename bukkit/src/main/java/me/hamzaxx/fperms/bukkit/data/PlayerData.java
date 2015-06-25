@@ -8,7 +8,6 @@ package me.hamzaxx.fperms.bukkit.data;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import me.hamzaxx.fperms.common.permissions.Permission;
 import me.hamzaxx.fperms.common.permissions.PermissionData;
-import org.bukkit.Bukkit;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -43,7 +42,9 @@ public class PlayerData implements Data, Serializable
         this.groupName = data.getName();
         this.prefix = data.getPrefix();
         this.suffix = data.getSuffix();
-        this.permissions = data.getPermissions();
+        this.permissions = new HashMap<>();
+        data.getPermissions().forEach( permission ->
+                permissions.put( permission.getName(), permission ) );
         effectivePermissions = new HashMap<>();
         recalculatePermissions();
     }
@@ -126,16 +127,15 @@ public class PlayerData implements Data, Serializable
         effectivePermissions.putAll( permissions );
         effectivePermissions.putAll( getGroup().getPermissions() );
         effectivePermissions.values().forEach( permission -> {
-            org.bukkit.permissions.Permission perm = null;//plugin.getServer().getPluginManager().getPermission( permission.getName() );
+            org.bukkit.permissions.Permission perm = plugin.getServer().getPluginManager().getPermission( permission.getName() );
             if ( perm != null )
             {
                 Map<String, Boolean> children = perm.getChildren();
-                if (children != null)
+                if ( children != null )
                 {
                     children.entrySet().stream().forEach( entry -> {
                         if ( !effectivePermissions.containsKey( perm.getName() ) )
                             effectivePermissions.put( perm.getName(), new Permission( perm.getName(), permission.getLocation(), entry.getValue() ) );
-
                     } );
                 }
             }

@@ -12,7 +12,6 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
-import me.hamzaxx.fperms.bungee.fPermsPlugin;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -23,11 +22,11 @@ import java.util.concurrent.ConcurrentMap;
 public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<ConcurrentMap<K, V>>
 {
 
-    private static fPermsPlugin plugin;
+    //private static fPermsPlugin plugin;
 
-    public ConcurrentHashMapTypeAdapter(fPermsPlugin plugin)
+    public ConcurrentHashMapTypeAdapter()
     {
-        ConcurrentHashMapTypeAdapter.plugin = plugin;
+        // ConcurrentHashMapTypeAdapter.plugin = plugin;
     }
 
     @SuppressWarnings("unused")
@@ -38,7 +37,7 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
         public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> typeToken)
         {
             return typeToken.getRawType() == ConcurrentMap.class
-                    ? ( TypeAdapter<T> ) new ConcurrentHashMapTypeAdapter( plugin ) : null;
+                    ? ( TypeAdapter<T> ) new ConcurrentHashMapTypeAdapter() : null;
         }
     };
 
@@ -50,8 +49,10 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
             in.nextNull();
             return null;
         }
-        Type aType = new TypeToken<Map<K, V>>() {}.getType();
-        Gson g = plugin.getExclusionaryGson();
+        Type aType = new TypeToken<Map<K, V>>()
+        {
+        }.getType();
+        Gson g = new Gson();
         Map<K, V> ltm = g.fromJson( in, aType );
         return new ConcurrentHashMap<>( ltm );
     }
@@ -59,7 +60,7 @@ public final class ConcurrentHashMapTypeAdapter<K, V> extends TypeAdapter<Concur
     @Override
     public synchronized void write(JsonWriter out, ConcurrentMap<K, V> value) throws IOException
     {
-        Gson g = plugin.getExclusionaryGson();
+        Gson g = new Gson();
         out.value( g.toJson( value ) );
     }
 }

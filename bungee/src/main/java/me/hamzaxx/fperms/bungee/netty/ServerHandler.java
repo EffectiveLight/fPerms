@@ -59,11 +59,11 @@ public class ServerHandler extends SimpleChannelInboundHandler<String[]>
         {
             case "clientHello":
                 ClientHello hello = plugin.getGson().fromJson( msg[ 1 ], ClientHello.class );
-                System.out.println( hello.getServerName() + " connected." );
+                System.out.println( "Server " + hello.getServerName() + " connected." );
                 plugin.getChannels().put( hello.getServerName(), ctx.channel() );
                 plugin.getDataSource().getGroups().values().forEach( groupData -> {
                     PermissionData data = new PermissionData( groupData.getGroupName(),
-                            groupData.getPrefix(), groupData.getSuffix(), groupData.getEffectiveBukkitPermissions() );
+                            groupData.getPrefix(), groupData.getSuffix(), groupData.getEffectiveBukkitPermissions().values() );
                     plugin.getLogger().info( groupData.getGroupName() );
                     ctx.writeAndFlush( new String[]{ "change", plugin.getGson().toJson(
                             new Change( ChangeType.GROUP, groupData.getGroupName() ) ), plugin.getGson().toJson( data ) } );
@@ -72,7 +72,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String[]>
             case "clientBye":
                 ClientBye bye = plugin.getGson().fromJson( msg[ 1 ], ClientBye.class );
                 plugin.getChannels().remove( bye.getServerName() );
-                plugin.getLogger().info( bye.getServerName() + " disconnected." );
+                plugin.getLogger().info( "Server " + bye.getServerName() + " disconnected!" );
                 ctx.close();
                 break;
         }

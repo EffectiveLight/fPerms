@@ -13,8 +13,6 @@ import me.hamzaxx.fperms.bungee.fPermsPlugin;
 import me.hamzaxx.fperms.bungee.util.Util;
 import me.hamzaxx.fperms.common.netty.Change;
 import me.hamzaxx.fperms.common.netty.ChangeType;
-import me.hamzaxx.fperms.common.permissions.Location;
-import me.hamzaxx.fperms.common.permissions.LocationType;
 import me.hamzaxx.fperms.common.permissions.Permission;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
@@ -240,10 +238,12 @@ public class fPermsCommand extends Command
                 {
                     if ( locationName == null )
                     {
-                        groupData.setBungeePermission( new Permission( permission, new Location( LocationType.ALL ), value ) );
+                        groupData.setBungeePermission( new Permission( permission,
+                                new Permission.Location( Permission.LocationType.ALL ), value ) );
                     } else
                     {
-                        groupData.setBungeePermission( new Permission( permission, new Location( LocationType.SERVER, locationName ), value ) );
+                        groupData.setBungeePermission( new Permission( permission,
+                                new Permission.Location( Permission.LocationType.SERVER, locationName ), value ) );
                     }
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s on Bukkit!",
                             permission, value, groupData.getGroupName() );
@@ -252,14 +252,18 @@ public class fPermsCommand extends Command
                     Permission perm;
                     if ( locationName == null )
                     {
-                        perm = new Permission( permission, new Location( LocationType.ALL ), value );
+                        perm = new Permission( permission,
+                                new Permission.Location( Permission.LocationType.ALL ), value );
                         groupData.setBukkitPermission( perm );
                     } else
                     {
-                        perm = new Permission( permission, new Location( LocationType.WORLD, locationName ), value );
-                        groupData.setBukkitPermission( new Permission( permission, new Location( LocationType.WORLD, locationName ), value ) );
+                        perm = new Permission( permission,
+                                new Permission.Location( Permission.LocationType.WORLD, locationName ), value );
+                        groupData.setBukkitPermission( perm );
                     }
-                    plugin.sentToAll( new Change( ChangeType.SET_GROUP_PERMISSION, groupData.getGroupName(), plugin.getGson().toJson( perm ) ) );
+                    String json = plugin.getGson().toJson( perm );
+                    plugin.getLogger().info( json );
+                    plugin.sentToAll( new Change( ChangeType.SET_GROUP_PERMISSION, groupData.getGroupName(), json ) );
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s!",
                             permission, value, groupData.getGroupName() );
                 } else
@@ -279,10 +283,12 @@ public class fPermsCommand extends Command
                 {
                     if ( locationName == null )
                     {
-                        playerData.setBungeePermission( new Permission( permission, new Location( LocationType.ALL ), value ) );
+                        playerData.setBungeePermission( new Permission( permission,
+                                new Permission.Location( Permission.LocationType.ALL ), value ) );
                     } else
                     {
-                        playerData.setBungeePermission( new Permission( permission, new Location( LocationType.SERVER, locationName ), value ) );
+                        playerData.setBungeePermission( new Permission( permission,
+                                new Permission.Location( Permission.LocationType.SERVER, locationName ), value ) );
                     }
 
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for player %s on BungeeCord!",
@@ -292,11 +298,11 @@ public class fPermsCommand extends Command
                     Permission perm;
                     if ( locationName == null )
                     {
-                        perm = new Permission( permission, new Location( LocationType.ALL ), value );
+                        perm = new Permission( permission, new Permission.Location( Permission.LocationType.ALL ), value );
                         playerData.setBukkitPermission( perm );
                     } else
                     {
-                        perm = new Permission( permission, new Location( LocationType.WORLD, locationName ), value );
+                        perm = new Permission( permission, new Permission.Location( Permission.LocationType.WORLD, locationName ), value );
                         playerData.setBukkitPermission( perm );
                     }
                     plugin.sendToServer( player.getServer(),

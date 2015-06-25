@@ -102,7 +102,6 @@ public class fPermsPlugin extends Plugin
         ServerHandler serverHandler = new ServerHandler( this );
         b.group( bossGroup, workerGroup )
                 .channel( NioServerSocketChannel.class )
-                        //.handler( new LoggingHandler( LogLevel.INFO ) )
                 .childHandler( new ChannelInitializer<SocketChannel>()
                 {
                     @Override

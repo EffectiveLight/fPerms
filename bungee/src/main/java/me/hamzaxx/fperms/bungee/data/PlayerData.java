@@ -32,6 +32,7 @@ public class PlayerData implements Data
     private Map<String, Permission> bungeePermissions;
 
     private Map<String, Permission> effectiveBukkitPermissions;
+    private Map<String, Permission> effectiveBungeePermissions;
 
     private DataSource dataSource;
 
@@ -92,9 +93,9 @@ public class PlayerData implements Data
     @Override
     public Map<String, Permission> getEffectiveBungeePermissions()
     {
-        if ( bukkitPermissions != null )
+        if ( effectiveBungeePermissions != null )
         {
-            return bukkitPermissions;
+            return effectiveBungeePermissions;
         } else
         {
             return computeEffectiveBungeePermissions();
@@ -197,7 +198,7 @@ public class PlayerData implements Data
         ConcurrentMap<String, Permission> tempMap = new ConcurrentHashMap<>();
         tempMap.putAll( dataSource.getPlayerGroup( playerUUID ).getEffectiveBungeePermissions() );
         tempMap.putAll( getBungeePermissions() );
-        this.effectiveBukkitPermissions = tempMap;
+        this.effectiveBungeePermissions = tempMap;
         return tempMap;
     }
 

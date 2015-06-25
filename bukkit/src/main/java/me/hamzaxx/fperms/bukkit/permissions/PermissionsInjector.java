@@ -9,7 +9,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 
 public class PermissionsInjector
@@ -18,7 +17,7 @@ public class PermissionsInjector
     private Player player;
     private fPermsPermissible permissible;
 
-    public PermissionsInjector(@Nonnull Player player, @Nullable fPermsPermissible permissible)
+    public PermissionsInjector(@Nonnull Player player, @Nonnull fPermsPermissible permissible)
     {
         this.player = player;
         this.permissible = permissible;

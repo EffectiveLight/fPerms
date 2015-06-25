@@ -6,15 +6,11 @@
 package me.hamzaxx.fperms.bungee.data.redis;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import me.hamzaxx.fperms.bungee.data.Data;
 import me.hamzaxx.fperms.bungee.data.DataSource;
 import me.hamzaxx.fperms.bungee.data.GroupData;
 import me.hamzaxx.fperms.bungee.data.PlayerData;
 import me.hamzaxx.fperms.bungee.fPermsPlugin;
-import me.hamzaxx.fperms.bungee.gson.ConcurrentHashMapTypeAdapter;
-import me.hamzaxx.fperms.common.permissions.Permission;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import redis.clients.jedis.Jedis;
@@ -33,7 +29,7 @@ public class RedisDataSource implements DataSource
     private final fPermsPlugin plugin;
     private JedisPool pool;
 
-    private Gson gson;
+    //private Gson gson;
 
     private final String PREFIX = "fPerms:";
 
@@ -43,12 +39,12 @@ public class RedisDataSource implements DataSource
     public RedisDataSource(fPermsPlugin plugin)
     {
         this.plugin = plugin;
-        GsonBuilder gsonBuilder = new GsonBuilder();
-        // gsonBuilder.registerTypeAdapter( new TypeToken<List<String>>() {}.getType(), new CopyOnWriteArrayListTypeAdapter<String>() );
+        /*GsonBuilder gsonBuilder = new GsonBuilder();
+         gsonBuilder.registerTypeAdapter( new TypeToken<List<String>>() {}.getType(), new CopyOnWriteArrayListTypeAdapter<String>() );
         gsonBuilder.registerTypeAdapter( new TypeToken<ConcurrentMap<String, Permission>>()
         {
         }.getType(), new ConcurrentHashMapTypeAdapter<String, Permission>( plugin ) );
-        gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();
+        gson = gsonBuilder.excludeFieldsWithoutExposeAnnotation().create();*/
         ProxyServer.getInstance().getScheduler().runAsync( plugin, () ->
                 pool = new JedisPool( new JedisPoolConfig(), "mc.atomic-cloud.net", 6379, 0 ) );
         ProxyServer.getInstance().getScheduler().schedule( plugin, () -> {
@@ -96,7 +92,7 @@ public class RedisDataSource implements DataSource
     public void savePlayer(PlayerData playerData)
     {
         String json = plugin.getExclusionaryGson().toJson( playerData );
-        put( PREFIX + playerData.getPlayerUUID().toString(), json );
+        putJson( playerData.getPlayerUUID().toString(), json );
     }
 
     @Override
@@ -133,7 +129,7 @@ public class RedisDataSource implements DataSource
     @Override
     public GroupData updateGroup(String name)
     {
-        GroupData group = gson.fromJson( getJson( name.toLowerCase() ), GroupData.class );
+        GroupData group = plugin.getGson().fromJson( getJson( name.toLowerCase() ), GroupData.class );
         group.setPlugin( plugin );
         group.setDataSource( this );
         GROUP_CACHE.put( group.getGroupName().toLowerCase(), group );
@@ -170,7 +166,7 @@ public class RedisDataSource implements DataSource
             return getGroup( PLAYER_GROUP_CACHE.get( playerUUID ).getGroupName() );
         if ( playerExists( playerUUID ) )
         {
-            PlayerData playerData = gson.fromJson( get( PREFIX + playerUUID ), PlayerData.class );
+            PlayerData playerData = plugin.getGson().fromJson( get( PREFIX + playerUUID ), PlayerData.class );
             playerData.setDataSource( this );
             PLAYER_GROUP_CACHE.put( playerUUID, playerData );
             return getGroup( playerData.getGroupName() );
@@ -185,7 +181,7 @@ public class RedisDataSource implements DataSource
             return PLAYER_GROUP_CACHE.get( playerUUID );
         else
         {
-            PlayerData playerData = gson.fromJson( get( PREFIX + playerUUID.toString() ), PlayerData.class );
+            PlayerData playerData = plugin.getGson().fromJson( get( PREFIX + playerUUID.toString() ), PlayerData.class );
             playerData.setDataSource( this );
             return playerData;
         }

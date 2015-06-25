@@ -8,10 +8,11 @@ package me.hamzaxx.fperms.bukkit.permissions;
 import com.google.common.base.Preconditions;
 import me.hamzaxx.fperms.bukkit.data.PlayerData;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
-import me.hamzaxx.fperms.common.permissions.Location;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.permissions.*;
+import org.bukkit.permissions.PermissibleBase;
+import org.bukkit.permissions.Permission;
+import org.bukkit.permissions.PermissionDefault;
 
 public class fPermsPermissible extends PermissibleBase
 {
@@ -35,7 +36,7 @@ public class fPermsPermissible extends PermissibleBase
         if ( isPermissionSet( "*" ) )
         {
             me.hamzaxx.fperms.common.permissions.Permission permission = playerData.getEffectivePermissions().get( "*" );
-            Location location = permission.getLocation();
+            me.hamzaxx.fperms.common.permissions.Permission.Location location = permission.getLocation();
             switch ( location.getType() )
             {
                 case ALL:
@@ -48,7 +49,7 @@ public class fPermsPermissible extends PermissibleBase
         if ( isPermissionSet( perm ) )
         {
             me.hamzaxx.fperms.common.permissions.Permission permission = playerData.getEffectivePermissions().get( perm );
-            Location location = permission.getLocation();
+            me.hamzaxx.fperms.common.permissions.Permission.Location location = permission.getLocation();
             switch ( location.getType() )
             {
                 case ALL:

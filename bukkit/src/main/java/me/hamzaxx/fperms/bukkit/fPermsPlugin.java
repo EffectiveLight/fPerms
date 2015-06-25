@@ -29,6 +29,7 @@ import me.hamzaxx.fperms.common.netty.ClientBye;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Listener;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -51,7 +52,9 @@ public class fPermsPlugin extends JavaPlugin
     {
         saveDefaultConfig();
         config = new Config( this );
-        Bukkit.getServicesManager().register( Chat.class, new ChatCompatibility( this ), this, ServicePriority.Highest );
+        Plugin vault = Bukkit.getPluginManager().getPlugin( "Vault" );
+        if ( vault != null && vault.isEnabled() )
+            Bukkit.getServicesManager().register( Chat.class, new ChatCompatibility( this ), this, ServicePriority.Highest );
         registerEvents();
         setupClient();
         handleTempData();

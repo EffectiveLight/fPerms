@@ -5,7 +5,7 @@
 
 package me.hamzaxx.fperms.common.permissions;
 
-import java.util.Map;
+import java.util.Collection;
 
 public class PermissionData
 {
@@ -13,10 +13,10 @@ public class PermissionData
     private String groupName;
     private String prefix;
     private String suffix;
-    private Map<String, Permission> permissions;
+    private Collection<Permission> permissions;
 
     public PermissionData(String groupName, String prefix,
-                      String suffix, Map<String, Permission> permissions)
+                          String suffix, Collection<Permission> permissions)
     {
         this.groupName = groupName;
         this.prefix = prefix;
@@ -39,7 +39,7 @@ public class PermissionData
         return suffix;
     }
 
-    public Map<String, Permission> getPermissions()
+    public Collection<Permission> getPermissions()
     {
         return permissions;
     }

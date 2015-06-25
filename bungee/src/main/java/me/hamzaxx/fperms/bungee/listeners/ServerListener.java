@@ -32,6 +32,6 @@ public class ServerListener implements Listener
         PlayerData playerData = plugin.getDataSource().getPlayerData( event.getPlayer().getUniqueId() );
         plugin.sendToServer( event.getTarget(), new Change( ChangeType.PLAYER, event.getPlayer().getName(),
                 plugin.getGson().toJson( new PermissionData( playerData.getGroupName(), playerData.getPrefix(),
-                        playerData.getSuffix(), playerData.getBukkitPermissions() ) ) ) );
+                        playerData.getSuffix(), playerData.getBukkitPermissions().values() ) ) ) );
     }
 }

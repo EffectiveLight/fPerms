@@ -1,9 +1,5 @@
 name: fPerms
 version: ${project.version}
 author: hamzaxx
-
+soptdepend:
 main: me.hamzaxx.fperms.bukkit.fPermsPlugin
-
-commands:
-  loc:
-    description: hi

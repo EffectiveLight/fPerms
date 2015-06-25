@@ -9,6 +9,7 @@ import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import me.hamzaxx.fperms.common.permissions.Permission;
 import me.hamzaxx.fperms.common.permissions.PermissionData;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class GroupData implements Data
@@ -35,7 +36,9 @@ public class GroupData implements Data
         this.name = data.getName();
         this.prefix = data.getPrefix();
         this.suffix = data.getSuffix();
-        this.permissions = data.getPermissions();
+        this.permissions = new HashMap<>();
+        data.getPermissions().forEach( permission ->
+                permissions.put( permission.getName(), permission ) );
     }
 
     @Override
@@ -88,7 +91,8 @@ public class GroupData implements Data
         recalculatePlayerPermissions();
     }
 
-    private void recalculatePlayerPermissions() {
+    private void recalculatePlayerPermissions()
+    {
         plugin.getPlayerData().values().stream().filter( playerData ->
                 getName().equals( playerData.getName() ) ).forEach( PlayerData::recalculatePermissions );
     }

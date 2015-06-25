@@ -5,16 +5,11 @@
 
 package me.hamzaxx.fperms.test;
 
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import me.hamzaxx.fperms.bungee.data.Data;
 import me.hamzaxx.fperms.bungee.data.GroupData;
-import me.hamzaxx.fperms.bungee.data.redis.RedisDataSource;
-import me.hamzaxx.fperms.bungee.fPermsPlugin;
-import me.hamzaxx.fperms.bungee.gson.ConcurrentHashMapTypeAdapter;
-import me.hamzaxx.fperms.bungee.gson.CopyOnWriteArrayListTypeAdapter;
 import me.hamzaxx.fperms.bungee.util.MapMaker;
+import me.hamzaxx.fperms.common.permissions.Permission;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.junit.Test;
@@ -120,8 +115,8 @@ public class fPermsTest
             Map<String, Long> innerMap = map.get( challengeAcceptor );
             if ( innerMap.containsKey( challengeIssuer ) )
             {
-                if ( !(( System.currentTimeMillis() / 1000 )
-                        - ( innerMap.get( challengeIssuer )  + expireTime ) > 0 ) )
+                if ( !( ( System.currentTimeMillis() / 1000 )
+                        - ( innerMap.get( challengeIssuer ) + expireTime ) > 0 ) )
                 {
                     // teleport
                 }
@@ -196,6 +191,32 @@ public class fPermsTest
         }
     }
 
+    @Test
+    public void testPermission()
+    {
+        Gson gson = new Gson();
+        Map<String, Permission> permissionMap = new HashMap<>();
+        Permission permission = new Permission( "bukkit.command.help", new Permission.Location( Permission.LocationType.ALL ), false );
+        permissionMap.put( permission.getName(), permission );
+        String json = gson.toJson( permissionMap );
+        System.out.println( json );
+        @SuppressWarnings("unchecked")
+        Map<String, Permission> permission1 = gson.fromJson( json, HashMap.class );
+        System.out.println( permission1.get( "bukkit.command.help" ).getValue() );
+    }
+
+    @Test
+    public void testJson()
+    {
+        Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        Map<String, Permission> bukkitPerms = new HashMap<>();
+        bukkitPerms.put( "smoke.it", new Permission( "smoke.it", new Permission.Location( Permission.LocationType.ALL ), false ) );
+        GroupData groupData = new GroupData( null, "admin", "admin", " >", new ArrayList<>(), new HashMap<>(), bukkitPerms );
+        String json = gson.toJson( groupData );
+        System.out.println( json );
+        GroupData data = gson.fromJson( json, GroupData.class );
+        data.getBukkitPermissions().keySet().forEach( System.out::println );
+    }
 
 
 }

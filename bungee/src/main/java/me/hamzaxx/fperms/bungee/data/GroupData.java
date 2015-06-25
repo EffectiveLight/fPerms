@@ -30,11 +30,11 @@ public class GroupData implements Data
 
     @Expose
     private List<String> parents;
-
     @Expose
     private Map<String, Permission> bungeePermissions;
     @Expose
     private Map<String, Permission> bukkitPermissions;
+
     private Map<String, Permission> effectiveBungeePermissions;
     private Map<String, Permission> effectiveBukkitPermissions;
 
@@ -125,13 +125,13 @@ public class GroupData implements Data
     @Override
     public boolean unsetBungeePermission(String permission)
     {
-        if ( bungeePermissions.containsKey( permission ) )
+        if ( getBungeePermissions().containsKey( permission ) )
         {
             if ( getBungeePermissions().get( permission ).getValue() )
             {
                 dataSource.getGroups().values().stream().filter( parent ->
                         parent.getParents().contains( getGroupName() ) ).forEach( parent ->
-                        parent.getEffectiveBukkitPermissions().remove( permission ) );
+                        parent.getEffectiveBungeePermissions().remove( permission ) );
             }
             getEffectiveBungeePermissions().remove( permission );
             getBungeePermissions().remove( permission );
@@ -149,7 +149,7 @@ public class GroupData implements Data
     {
         if ( getBukkitPermissions().containsKey( permission ) )
         {
-            if ( getBungeePermissions().get( permission ).getValue() )
+            if ( getBukkitPermissions().get( permission ).getValue() )
             {
                 dataSource.getGroups().values().stream().filter( parent ->
                         parent.getParents().contains( getGroupName() ) ).forEach(
@@ -158,8 +158,9 @@ public class GroupData implements Data
                             plugin.sentToAll( new Change( ChangeType.UNSET_GROUP_PERMISSION, parent.getGroupName(), permission ) );
                         } );
             }
-            getEffectiveBungeePermissions().remove( permission );
-            getBungeePermissions().remove( permission );
+            getEffectiveBukkitPermissions().remove( permission );
+            getBukkitPermissions().remove( permission );
+            System.out.println( plugin.getGson().toJson( this ) );
             dataSource.saveGroup( this );
             dataSource.getPlayerCache().values().stream().filter( playerData ->
                     playerData.getGroupName().equalsIgnoreCase( getGroupName() ) ).forEach(
