@@ -14,6 +14,7 @@ import me.hamzaxx.fperms.bungee.util.Util;
 import me.hamzaxx.fperms.common.netty.Change;
 import me.hamzaxx.fperms.common.netty.ChangeType;
 import me.hamzaxx.fperms.common.permissions.Permission;
+import me.hamzaxx.fperms.common.permissions.PermissionData;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.ProxyServer;
@@ -29,7 +30,7 @@ public class fPermsCommand extends Command
 
     private DataSource dataSource;
 
-    private Joiner joiner = Joiner.on( " ," );
+    private Joiner joiner = Joiner.on( ", " );
 
     private final String[] HELP = new String[]{
             null,
@@ -105,7 +106,9 @@ public class fPermsCommand extends Command
                         {
                             dataSource.addGroup( args[ 1 ] );
                             GroupData data = dataSource.getGroup( args[ 1 ] );
-                            plugin.sentToAll( new Change( ChangeType.GROUP, data.getGroupName(), plugin.getGson().toJson( data ) ) );
+                            PermissionData permissionData = new PermissionData( data.getGroupName(), data.getPrefix(),
+                                    data.getSuffix(), data.getEffectiveBukkitPermissions() );
+                            plugin.sentToAll( new Change( ChangeType.GROUP, data.getGroupName(), plugin.getGson().toJson( permissionData ) ) );
                             Util.sendSuccess( commandSender, "Group %s was created!", args[ 1 ] );
                         } else
                         {
@@ -124,7 +127,6 @@ public class fPermsCommand extends Command
                 // TODO: Add group removing
                 break;
             case "set":
-                plugin.getLogger().info( String.valueOf( args.length ) );
                 if ( args.length == 7 )
                 {
                     handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 3 ],
@@ -233,7 +235,6 @@ public class fPermsCommand extends Command
             if ( handleGroup( commandSender, object ) )
             {
                 Data groupData = dataSource.getGroup( object );
-                System.out.println( option );
                 if ( option.equalsIgnoreCase( "bungee" ) )
                 {
                     if ( locationName == null )
@@ -261,14 +262,11 @@ public class fPermsCommand extends Command
                                 new Permission.Location( Permission.LocationType.WORLD, locationName ), value );
                         groupData.setBukkitPermission( perm );
                     }
-                    String json = plugin.getGson().toJson( perm );
-                    plugin.getLogger().info( json );
-                    plugin.sentToAll( new Change( ChangeType.SET_GROUP_PERMISSION, groupData.getGroupName(), json ) );
+                    plugin.sentToAll( new Change( ChangeType.SET_GROUP_PERMISSION, groupData.getGroupName(), plugin.getGson().toJson( perm ) ) );
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s!",
                             permission, value, groupData.getGroupName() );
                 } else
                 {
-                    System.out.println( "called error" );
                     Util.sendMessage( commandSender,
                             "&3/fPerms group &b<group> &3set &b<bungee/bukkit> <permission> <value> [server/world]" );
                 }
