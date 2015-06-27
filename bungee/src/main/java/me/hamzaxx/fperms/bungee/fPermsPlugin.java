@@ -80,13 +80,13 @@ public class fPermsPlugin extends Plugin
             }
         }
 
-        File file = new File( getDataFolder(), "config.yml" );
+        File file = new File( getDataFolder(), "bungeeconfig.yml" );
 
         if ( !file.exists() )
         {
             try
             {
-                Files.copy( getResourceAsStream( "config.yml" ), file.toPath() );
+                Files.copy( getResourceAsStream( "bungeeconfig.yml" ), file.toPath() );
             } catch ( IOException ex )
             {
                 getProxy().getLogger().severe( ex.getMessage() );
@@ -120,8 +120,7 @@ public class fPermsPlugin extends Plugin
 
     private void registerListeners()
     {
-        Stream.of( new ServerListener( this ), new PermissionListener( this ),
-                new PermissionListener( this ), new LoginListener( this ) ).forEach( listener ->
+        Stream.of( new ServerListener( this ), new PermissionListener( this ), new LoginListener( this ) ).forEach( listener ->
                 getProxy().getPluginManager().registerListener( this, listener ) );
     }
 
@@ -141,6 +140,7 @@ public class fPermsPlugin extends Plugin
                         socketChannel.pipeline().addLast( new ObjectDecoder( ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(), serverHandler );
                     }
                 } );
+        b.localAddress( "0.0.0.0", getConfig().getPort() );
         try
         {
             channel = b.bind( getConfig().getPort() ).sync().channel();

@@ -31,7 +31,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
@@ -77,15 +76,21 @@ public class fPermsPlugin extends JavaPlugin
     {
         try
         {
-            getChannel().writeAndFlush( new String[]{ "clientBye", getGson().toJson(
-                    new ClientBye( getConfigiuration().getServerName() ) ) } ).await();
+            if ( channel != null )
+            {
+                getChannel().writeAndFlush( new String[]{ "clientBye", getGson().toJson(
+                        new ClientBye( getConfigiuration().getServerName() ) ) } ).await();
+            }
         } catch ( InterruptedException e )
         {
             e.printStackTrace();
         } finally
         {
-            channel.closeFuture();
-            channel.close();
+            if ( channel != null )
+            {
+                channel.closeFuture();
+                channel.close();
+            }
             group.shutdownGracefully();
         }
     }
@@ -109,7 +114,7 @@ public class fPermsPlugin extends JavaPlugin
                         }
 
                     } );
-            channel = b.connect( config.getServerAddress() ).sync().channel();
+            channel = b.connect( getConfigiuration().getServerAddress() ).sync().channel();
         } catch ( InterruptedException e )
         {
             kill();

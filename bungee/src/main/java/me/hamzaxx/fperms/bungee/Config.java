@@ -25,8 +25,8 @@ public class Config
         try
         {
             Configuration config = ConfigurationProvider.getProvider(
-                    YamlConfiguration.class ).load( new File( plugin.getDataFolder(), "config.yml" ) );
-            port = config.getInt( "port" );
+                    YamlConfiguration.class ).load( new File( plugin.getDataFolder(), "bungeeconfig.yml" ) );
+            port = config.getInt( "server-port" );
             defaultGroupName = config.getString( "default-group-name" );
             String[] redis = config.getString( "redis.address" ).split( ":" );
             try

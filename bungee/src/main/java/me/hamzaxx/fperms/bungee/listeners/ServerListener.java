@@ -28,7 +28,7 @@ public class ServerListener implements Listener
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onServerConnect(ServerConnectEvent event)
     {
-        if ( event.isCancelled() ) return;
+        if ( event.isCancelled() || !plugin.getChannels().containsKey( event.getTarget().getName() ) ) return;
         PlayerData playerData = plugin.getDataSource().getPlayerData( event.getPlayer().getUniqueId() );
         plugin.sendToServer( event.getTarget(), new Change( ChangeType.PLAYER, event.getPlayer().getName(),
                 plugin.getGson().toJson( new PermissionData( playerData.getGroupName(), playerData.getPrefix(),
