@@ -6,7 +6,6 @@
 package me.hamzaxx.fperms.bukkit.listeners;
 
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
-import me.hamzaxx.fperms.bukkit.permissions.PermissionsInjector;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

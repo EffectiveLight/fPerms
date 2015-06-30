@@ -13,22 +13,25 @@ public class Permission
     @Expose
     private String name;
     @Expose
-    private Location location;
-    @Expose
     private boolean value;
+    @Expose
+    private LocationType locationType;
+    @Expose
+    private String locationName;
 
-    public Permission(String name, Location location, boolean value)
+    public Permission(String name, boolean value, LocationType locationType, String locationName)
     {
         this.name = name;
-        this.location = location;
         this.value = value;
-
+        this.locationType = locationType;
+        this.locationName = locationName;
     }
 
-    public Permission(String name, Location location)
+    public Permission(String name, boolean value, LocationType locationType)
     {
         this.name = name;
-        this.location = location;
+        this.value = value;
+        this.locationType = locationType;
     }
 
     public String getName()
@@ -36,9 +39,14 @@ public class Permission
         return name;
     }
 
-    public Location getLocation()
+    public LocationType getLocationType()
     {
-        return location;
+        return locationType;
+    }
+
+    public String getLocationName()
+    {
+        return locationName;
     }
 
     public boolean getValue()
@@ -46,39 +54,8 @@ public class Permission
         return value;
     }
 
-    public static class Location
-    {
-
-        @Expose
-        private LocationType locationType;
-        @Expose
-        private String locationName;
-
-        public Location(LocationType type, String locationName)
-        {
-            this.locationType = type;
-            this.locationName = locationName;
-        }
-
-        public Location(LocationType locationType)
-        {
-            this.locationType = locationType;
-        }
-
-        public LocationType getType()
-        {
-            return locationType;
-        }
-
-        public String getLocationName()
-        {
-            return locationName;
-        }
-    }
-
-
     public enum LocationType
     {
-        WORLD, SERVER, ALL
+        WORLD, SERVER, BUNGEE, BUKKIT, ALL
     }
 }

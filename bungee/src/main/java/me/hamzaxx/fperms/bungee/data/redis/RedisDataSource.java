@@ -48,7 +48,8 @@ public class RedisDataSource implements DataSource
                 if ( !groupExists( plugin.getConfig().getDefaultGroupName() ) )
                     addGroup( plugin.getConfig().getDefaultGroupName() );
                 updateGroups();
-            } catch ( JedisConnectionException e ) {
+            } catch ( JedisConnectionException e )
+            {
                 plugin.getLogger().severe( "Couldn't connect to Redis, Proxy shutting down." );
                 plugin.getProxy().stop();
             }
@@ -131,7 +132,6 @@ public class RedisDataSource implements DataSource
     @Override
     public GroupData updateGroup(String name)
     {
-
         GroupData group = plugin.getExclusionaryGson().fromJson( getJson( name.toLowerCase() ), GroupData.class );
         group.setPlugin( plugin );
         group.setDataSource( this );

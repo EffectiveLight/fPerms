@@ -26,7 +26,7 @@ public class Test
         list.put( "hamzaxx", new PlayerData( null, "Mod", "", "", perms ) );
         list.put( "effective_light", new PlayerData( null, "Admin", "", "", perms ) );
         //System.out.println( list );
-        File file = new File( "C:\\Users\\hamza\\Desktop\\bungee\\test.dat" );
+        File file = new File( "dir" );
         try
         {
             System.out.println( file.length() );

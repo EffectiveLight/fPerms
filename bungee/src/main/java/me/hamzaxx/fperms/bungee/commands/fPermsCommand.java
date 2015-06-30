@@ -47,7 +47,7 @@ public class fPermsCommand extends Command
             "&3/fPerms group &b<group> &3unset &b<bungee/bukkit> <permission>",
             "&3/fPerms player &b<player> &3prefix &b<prefix>",
             "&3/fPerms player &b<player> &3suffix &b<suffix>",
-            "&6&m---------------------------------------------------------" };
+            "&6&m---------------------------------------------------" };
     private fPermsPlugin plugin;
 
     public fPermsCommand(fPermsPlugin plugin)
@@ -55,13 +55,13 @@ public class fPermsCommand extends Command
         super( "fPerms", "fperms.admin", "perms" );
         this.plugin = plugin;
         dataSource = plugin.getDataSource();
-        HELP[ 0 ] = "&6&m---------------&a&m[&efPerms|Version:" + plugin.getDescription().getVersion() + "&a&m]&6&m-----------------";
+        HELP[ 0 ] = "&6&m-------------&a&m[&efPerms|Version:" + plugin.getDescription().getVersion() + "&a&m]&6&m--------------";
     }
 
     @Override
     public void execute(CommandSender commandSender, String[] args)
     {
-        if ( args.length < 2 || args.length > 7 )
+        if ( args.length <= 2 || args.length > 7 )
         {
             sendHelp( commandSender );
             return;
@@ -85,7 +85,7 @@ public class fPermsCommand extends Command
                             dataSource.setPlayerGroup( player, args[ 1 ] );
                             plugin.sendToServer( player.getServer(), new Change( ChangeType.GROUP_NAME, player.getName(), args[ 1 ] ) );
                             Util.sendSuccess( commandSender, "Player %s's group was set to %s!", player.getName(),
-                                    args[ 1 ] );
+                                    args[ 1 ].toLowerCase() );
                             Util.sendSuccess( player, "Your rank was set to %s!", args[ 1 ] );
                         }
                     } else
@@ -109,7 +109,7 @@ public class fPermsCommand extends Command
                             PermissionData permissionData = new PermissionData( data.getGroupName(), data.getPrefix(),
                                     data.getSuffix(), data.getEffectiveBukkitPermissions() );
                             plugin.sentToAll( new Change( ChangeType.GROUP, data.getGroupName(), plugin.getGson().toJson( permissionData ) ) );
-                            Util.sendSuccess( commandSender, "Group %s was created!", args[ 1 ] );
+                            Util.sendSuccess( commandSender, "Group %s was created!", data.getGroupName() );
                         } else
                         {
                             Util.sendError( commandSender, "That group already exists!" );
@@ -133,7 +133,6 @@ public class fPermsCommand extends Command
                             args[ 4 ], Boolean.parseBoolean( args[ 5 ] ), args[ 6 ] );
                 } else if ( args.length == 6 )
                 {
-                    System.out.println( "called" );
                     handleSet( commandSender, args[ 0 ], args[ 1 ], args[ 3 ],
                             args[ 4 ], Boolean.parseBoolean( args[ 5 ] ), null );
                 } else
@@ -154,9 +153,10 @@ public class fPermsCommand extends Command
                 }
                 break;
             case "prefix":
-                if ( args.length == 4 )
+                if ( args.length >= 4 )
                 {
-                    handlePrefix( commandSender, args[ 0 ], args[ 1 ], args[ 3 ] );
+
+                    handlePrefix( commandSender, args[ 0 ], args[ 1 ], joinArgs( args, 3, args.length ) );
                 } else
                 {
                     Util.sendMessage( commandSender,
@@ -164,9 +164,9 @@ public class fPermsCommand extends Command
                 }
                 break;
             case "suffix":
-                if ( args.length == 4 )
+                if ( args.length >= 4 )
                 {
-                    handleSuffix( commandSender, args[ 0 ], args[ 1 ], args[ 3 ] );
+                    handleSuffix( commandSender, args[ 0 ], args[ 1 ], joinArgs( args, 3, args.length ) );
                 } else
                 {
                     Util.sendMessage( commandSender,
@@ -180,7 +180,7 @@ public class fPermsCommand extends Command
                     {
                         if ( handleGroup( commandSender, args[ 1 ] ) )
                         {
-                            Data groupData = dataSource.getGroup( args[ 1 ] );
+                            GroupData groupData = dataSource.getGroup( args[ 1 ] );
                             if ( args[ 3 ].contains( "," ) )
                             {
                                 String[] parents = args[ 3 ].split( "," );
@@ -208,7 +208,7 @@ public class fPermsCommand extends Command
                                             groupData.getGroupName() );
                                 } else
                                 {
-                                    Util.sendError( commandSender, "Parent group %s doesn't exist!", args[ 3 ] );
+                                    Util.sendError( commandSender, "Parent group %s doesn't exist!", groupData.getGroupName() );
                                 }
                             }
                         }
@@ -227,6 +227,18 @@ public class fPermsCommand extends Command
         }
     }
 
+    private String joinArgs(String[] args, int min, int max)
+    {
+        StringBuilder builder = new StringBuilder();
+        for ( int i = min; i < max; i++ )
+        {
+            builder.append( args[ i ] ).append( " " );
+        }
+
+        String str = builder.toString();
+        return str.substring( 0, str.length() - 1 );
+    }
+
     private void handleSet(CommandSender commandSender, String task, String object,
                            String option, String permission, boolean value, String locationName)
     {
@@ -239,12 +251,12 @@ public class fPermsCommand extends Command
                 {
                     if ( locationName == null )
                     {
-                        groupData.setBungeePermission( new Permission( permission,
-                                new Permission.Location( Permission.LocationType.ALL ), value ) );
+                        groupData.setBungeePermission( new Permission( permission, value,
+                                Permission.LocationType.ALL ) );
                     } else
                     {
-                        groupData.setBungeePermission( new Permission( permission,
-                                new Permission.Location( Permission.LocationType.SERVER, locationName ), value ) );
+                        groupData.setBungeePermission( new Permission( permission, value,
+                                Permission.LocationType.SERVER, locationName ) );
                     }
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for group %s on Bukkit!",
                             permission, value, groupData.getGroupName() );
@@ -253,13 +265,13 @@ public class fPermsCommand extends Command
                     Permission perm;
                     if ( locationName == null )
                     {
-                        perm = new Permission( permission,
-                                new Permission.Location( Permission.LocationType.ALL ), value );
+                        perm = new Permission( permission, value,
+                                Permission.LocationType.ALL );
                         groupData.setBukkitPermission( perm );
                     } else
                     {
-                        perm = new Permission( permission,
-                                new Permission.Location( Permission.LocationType.WORLD, locationName ), value );
+                        perm = new Permission( permission, value,
+                                Permission.LocationType.WORLD, locationName );
                         groupData.setBukkitPermission( perm );
                     }
                     plugin.sentToAll( new Change( ChangeType.SET_GROUP_PERMISSION, groupData.getGroupName(), plugin.getGson().toJson( perm ) ) );
@@ -281,12 +293,10 @@ public class fPermsCommand extends Command
                 {
                     if ( locationName == null )
                     {
-                        playerData.setBungeePermission( new Permission( permission,
-                                new Permission.Location( Permission.LocationType.ALL ), value ) );
+                        playerData.setBungeePermission( new Permission( permission, value, Permission.LocationType.ALL ) );
                     } else
                     {
-                        playerData.setBungeePermission( new Permission( permission,
-                                new Permission.Location( Permission.LocationType.SERVER, locationName ), value ) );
+                        playerData.setBungeePermission( new Permission( permission, value, Permission.LocationType.SERVER, locationName ) );
                     }
 
                     Util.sendSuccess( commandSender, "Permission %s was set to %s for player %s on BungeeCord!",
@@ -296,11 +306,11 @@ public class fPermsCommand extends Command
                     Permission perm;
                     if ( locationName == null )
                     {
-                        perm = new Permission( permission, new Permission.Location( Permission.LocationType.ALL ), value );
+                        perm = new Permission( permission, value, Permission.LocationType.ALL );
                         playerData.setBukkitPermission( perm );
                     } else
                     {
-                        perm = new Permission( permission, new Permission.Location( Permission.LocationType.WORLD, locationName ), value );
+                        perm = new Permission( permission, value, Permission.LocationType.WORLD, locationName );
                         playerData.setBukkitPermission( perm );
                     }
                     plugin.sendToServer( player.getServer(),
@@ -403,7 +413,8 @@ public class fPermsCommand extends Command
         }
     }
 
-    private void handleSuffix(CommandSender commandSender, String task, String object, String suffix)
+    //@SubCommand(name = "suffix", permission = "fperms.command.suffix", requiredArgs = { "group/player", "<group/player>", "object", "suffix" })
+    public void handleSuffix(CommandSender commandSender, String task, String object, String suffix)
     {
         if ( task.equalsIgnoreCase( "group" ) )
         {
@@ -456,6 +467,7 @@ public class fPermsCommand extends Command
         }
     }
 
+
     private boolean handleGroup(CommandSender commandSender, String groupName)
     {
         boolean groupExists = dataSource.groupExists( groupName );
@@ -465,5 +477,4 @@ public class fPermsCommand extends Command
         }
         return groupExists;
     }
-
 }

@@ -60,6 +60,7 @@ public class fPermsPlugin extends Plugin
         dataSource = new RedisDataSource( this );
         getProxy().getScheduler().schedule( this, this::setupServer, 2, TimeUnit.SECONDS );
         getProxy().getPluginManager().registerCommand( this, new fPermsCommand( this ) );
+        //getProxy().getPluginManager().registerCommand( this, new CommandExecutor( "fPerms", fPermsCommand.class ) );
         registerListeners();
     }
 
@@ -137,7 +138,9 @@ public class fPermsPlugin extends Plugin
                     @Override
                     protected void initChannel(SocketChannel socketChannel) throws Exception
                     {
-                        socketChannel.pipeline().addLast( new ObjectDecoder( ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(), serverHandler );
+                        socketChannel.pipeline().addLast( new ObjectDecoder(
+                                        ClassResolvers.cacheDisabled( ClassLoader.getSystemClassLoader() ) ),
+                                new ObjectEncoder(), serverHandler );
                     }
                 } );
         b.localAddress( "0.0.0.0", getConfig().getPort() );

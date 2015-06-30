@@ -34,26 +34,26 @@ public class fPermsPermissible extends PermissibleBase
         if ( isPermissionSet( "*" ) )
         {
             Permission permission = playerData.getEffectivePermissions().get( "*" );
-            Permission.Location location = permission.getLocation();
-            switch ( location.getType() )
+            switch ( permission.getLocationType() )
             {
                 case ALL:
                     return permission.getValue();
                 case WORLD:
-                    return player.getWorld().getName().equals( location.getLocationName() ) && permission.getValue();
+                    return permission.getValue()
+                            && player.getWorld().getName().equals( permission.getLocationName() );
             }
         }
 
         if ( isPermissionSet( perm ) )
         {
             Permission permission = playerData.getEffectivePermissions().get( perm );
-            Permission.Location location = permission.getLocation();
-            switch ( location.getType() )
+            switch ( permission.getLocationType() )
             {
                 case ALL:
                     return permission.getValue();
                 case WORLD:
-                    return player.getWorld().getName().equals( location.getLocationName() ) && permission.getValue();
+                    return permission.getValue()
+                            && player.getWorld().getName().equals( permission.getLocationName() );
             }
         } else
         {

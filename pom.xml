@@ -17,7 +17,7 @@
     </modules>
     <groupId>me.hamzaxx</groupId>
     <artifactId>fperms</artifactId>
-    <version>0.93-BETA</version>
+    <version>0.945-BETA</version>
 
     <name>fPerms</name>
     <description>fPerms is a blazing fast permissions plugin.</description>

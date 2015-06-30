@@ -24,6 +24,7 @@ import me.hamzaxx.fperms.bukkit.netty.ClientHandler;
 import me.hamzaxx.fperms.bukkit.permissions.PermissionsInjector;
 import me.hamzaxx.fperms.bukkit.permissions.fPermsPermissible;
 import me.hamzaxx.fperms.bukkit.vault.ChatCompatibility;
+import me.hamzaxx.fperms.bukkit.vault.PermissionsCompatibility;
 import me.hamzaxx.fperms.common.netty.ClientBye;
 import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
@@ -52,7 +53,11 @@ public class fPermsPlugin extends JavaPlugin
         config = new Config( this );
         Plugin vault = Bukkit.getPluginManager().getPlugin( "Vault" );
         if ( vault != null && vault.isEnabled() )
-            Bukkit.getServicesManager().register( Chat.class, new ChatCompatibility( this ), this, ServicePriority.Highest );
+        {
+            Bukkit.getServicesManager().register( Chat.class, new ChatCompatibility( this,
+                    new PermissionsCompatibility( this ) ), this, ServicePriority.Highest );
+            getLogger().info( "Hooked into vault!" );
+        }
         registerEvents();
         setupClient();
         Bukkit.getOnlinePlayers().forEach( player ->
@@ -79,7 +84,7 @@ public class fPermsPlugin extends JavaPlugin
             if ( channel != null )
             {
                 getChannel().writeAndFlush( new String[]{ "clientBye", getGson().toJson(
-                        new ClientBye( getConfigiuration().getServerName() ) ) } ).await();
+                        new ClientBye( getConfiguration().getServerName() ) ) } ).await();
             }
         } catch ( InterruptedException e )
         {
@@ -95,26 +100,27 @@ public class fPermsPlugin extends JavaPlugin
         }
     }
 
-    private void setupClient()
+    private synchronized void setupClient()
     {
         group = new NioEventLoopGroup();
         try
         {
-            ClientHandler clientHandler = new ClientHandler( config.getServerName(), this );
+            ClientHandler clientHandler = new ClientHandler( this );
             Bootstrap b = new Bootstrap();
             b.group( group )
                     .channel( NioSocketChannel.class )
                     .handler( new ChannelInitializer<SocketChannel>()
                     {
                         @Override
-                        protected void initChannel(SocketChannel socketChannel) throws Exception
+                        public void initChannel(SocketChannel socketChannel) throws Exception
                         {
                             socketChannel.pipeline().addLast( new ObjectDecoder(
-                                    ClassResolvers.cacheDisabled( null ) ), new ObjectEncoder(), clientHandler );
+                                            ClassResolvers.cacheDisabled( ClassLoader.getSystemClassLoader() ) ),
+                                    new ObjectEncoder(), clientHandler );
                         }
 
                     } );
-            channel = b.connect( getConfigiuration().getServerAddress() ).sync().channel();
+            channel = b.connect( getConfiguration().getServerAddress() ).sync().channel();
         } catch ( InterruptedException e )
         {
             kill();
@@ -122,7 +128,7 @@ public class fPermsPlugin extends JavaPlugin
         }
     }
 
-    public Config getConfigiuration()
+    public Config getConfiguration()
     {
         return config;
     }

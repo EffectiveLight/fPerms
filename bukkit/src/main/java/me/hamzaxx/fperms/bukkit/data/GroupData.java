@@ -9,7 +9,6 @@ import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import me.hamzaxx.fperms.common.permissions.Permission;
 import me.hamzaxx.fperms.common.permissions.PermissionData;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class GroupData implements Data

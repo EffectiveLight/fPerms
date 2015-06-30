@@ -6,7 +6,6 @@
 package me.hamzaxx.fperms.bukkit.data;
 
 
-
 import me.hamzaxx.fperms.common.permissions.Permission;
 
 import java.util.Map;

@@ -8,11 +8,9 @@ package me.hamzaxx.fperms.bungee.data;
 import com.google.gson.annotations.Expose;
 import me.hamzaxx.fperms.common.permissions.Permission;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class PlayerData implements Data
 {
@@ -25,28 +23,25 @@ public class PlayerData implements Data
     private String prefix;
     @Expose
     private String suffix;
-
-    @Expose
-    private Map<String, Permission> bukkitPermissions;
     @Expose
     private Map<String, Permission> bungeePermissions;
+    @Expose
+    private Map<String, Permission> bukkitPermissions;
 
-    private Map<String, Permission> effectiveBukkitPermissions;
     private Map<String, Permission> effectiveBungeePermissions;
-
     private DataSource dataSource;
 
     public PlayerData(DataSource dataSource, UUID playerUUID,
-                      String group, String prefix, String suffix, Map<String, Permission>
-                              bukkitPermissions, Map<String, Permission> bungeePermissions)
+                      String group, String prefix, String suffix,
+                      Map<String, Permission> bungeePermissions, Map<String, Permission> bukkitPermissions)
     {
         this.dataSource = dataSource;
         this.playerUUID = playerUUID;
         this.group = group;
         this.prefix = prefix;
         this.suffix = suffix;
-        this.bukkitPermissions = bukkitPermissions;
         this.bungeePermissions = bungeePermissions;
+        this.bukkitPermissions = bukkitPermissions;
     }
 
     @Override
@@ -58,6 +53,7 @@ public class PlayerData implements Data
     public void setGroupName(String groupName)
     {
         this.group = groupName;
+        computeEffectiveBungeePermissions();
         dataSource.savePlayer( this );
     }
 
@@ -79,15 +75,16 @@ public class PlayerData implements Data
     }
 
     @Override
-    public Map<String, Permission> getBukkitPermissions()
-    {
-        return bukkitPermissions;
-    }
-
-    @Override
     public Map<String, Permission> getBungeePermissions()
     {
         return bungeePermissions;
+    }
+
+
+    @Override
+    public Map<String, Permission> getBukkitPermissions()
+    {
+        return bukkitPermissions;
     }
 
     @Override
@@ -105,21 +102,9 @@ public class PlayerData implements Data
     @Override
     public Map<String, Permission> getEffectiveBukkitPermissions()
     {
-        if ( effectiveBukkitPermissions != null )
-        {
-            return effectiveBukkitPermissions;
-        } else
-        {
-            return computeEffectiveBukkitPermissions();
-        }
+        throw new UnsupportedOperationException( "unused" );
     }
 
-
-    @Override
-    public List<String> getParents()
-    {
-        throw new UnsupportedOperationException( "Player's don't have parents!" );
-    }
 
     @Override
     public void setBungeePermission(Permission permission)
@@ -133,14 +118,14 @@ public class PlayerData implements Data
     public void setBukkitPermission(Permission permission)
     {
         getBukkitPermissions().put( permission.getName(), permission );
-        computeEffectiveBukkitPermissions();
+        dataSource.savePlayer( this );
     }
 
     @Override
     public boolean unsetBungeePermission(String permission)
     {
         if ( !getBungeePermissions().containsKey( permission ) ) return false;
-        getBukkitPermissions().remove( permission );
+        getBungeePermissions().remove( permission );
         computeEffectiveBungeePermissions();
         dataSource.savePlayer( this );
         return true;
@@ -149,11 +134,7 @@ public class PlayerData implements Data
     @Override
     public boolean unsetBukkitPermission(String permission)
     {
-        if ( !getBukkitPermissions().containsKey( permission ) ) return false;
-        getBukkitPermissions().remove( permission );
-        computeEffectiveBukkitPermissions();
-        dataSource.savePlayer( this );
-        return true;
+        return false;
     }
 
     @Override
@@ -170,32 +151,9 @@ public class PlayerData implements Data
         dataSource.savePlayer( this );
     }
 
-    @Override
-    @Deprecated
-    public void addParent(String parent)
+    public Map<String, Permission> computeEffectiveBungeePermissions()
     {
-        throw new UnsupportedOperationException( "Not applicable!" );
-    }
-
-    @Override
-    @Deprecated
-    public void addParents(List<String> parents)
-    {
-        throw new UnsupportedOperationException( "Not applicable!" );
-    }
-
-    public ConcurrentMap<String, Permission> computeEffectiveBukkitPermissions()
-    {
-        ConcurrentMap<String, Permission> tempMap = new ConcurrentHashMap<>();
-        tempMap.putAll( dataSource.getPlayerGroup( playerUUID ).getEffectiveBukkitPermissions() );
-        tempMap.putAll( getBukkitPermissions() );
-        this.effectiveBukkitPermissions = tempMap;
-        return tempMap;
-    }
-
-    public ConcurrentMap<String, Permission> computeEffectiveBungeePermissions()
-    {
-        ConcurrentMap<String, Permission> tempMap = new ConcurrentHashMap<>();
+        Map<String, Permission> tempMap = new HashMap<>();
         tempMap.putAll( dataSource.getPlayerGroup( playerUUID ).getEffectiveBungeePermissions() );
         tempMap.putAll( getBungeePermissions() );
         this.effectiveBungeePermissions = tempMap;

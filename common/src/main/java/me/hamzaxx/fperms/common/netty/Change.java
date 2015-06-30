@@ -22,7 +22,8 @@ public class Change
         this.data = data;
     }
 
-    public Change(ChangeType changeType, String name) {
+    public Change(ChangeType changeType, String name)
+    {
         this.changeType = changeType;
         this.name = name;
     }

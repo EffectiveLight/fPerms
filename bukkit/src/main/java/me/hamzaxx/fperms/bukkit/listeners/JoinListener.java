@@ -28,7 +28,7 @@ public class JoinListener implements Listener
     {
         if ( !plugin.getPlayerData().containsKey( event.getPlayer().getName() ) )
         {
-            event.disallow( PlayerLoginEvent.Result.KICK_OTHER, plugin.getConfigiuration().getFastJoinMessage() );
+            event.disallow( PlayerLoginEvent.Result.KICK_OTHER, plugin.getConfiguration().getFastJoinMessage() );
             return;
         }
         new PermissionsInjector( event.getPlayer(),

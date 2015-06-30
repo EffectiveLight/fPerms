@@ -20,7 +20,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 public class ClientHandler extends SimpleChannelInboundHandler<String[]>
@@ -29,9 +28,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
     private String serverName;
     private fPermsPlugin plugin;
 
-    public ClientHandler(String serverName, fPermsPlugin plugin)
+    public ClientHandler(fPermsPlugin plugin)
     {
-        this.serverName = serverName;
+        this.serverName = plugin.getConfiguration().getServerName();
         this.plugin = plugin;
     }
 
@@ -67,7 +66,9 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception
     {
-        ctx.writeAndFlush( new String[]{ "clientBye", plugin.getGson().toJson( new ClientBye( serverName ) ) } );
+
+        ctx.writeAndFlush( new String[]{ "clientBye",
+                plugin.getGson().toJson( new ClientBye( serverName ) ) } );
     }
 
     @Override
@@ -84,7 +85,8 @@ public class ClientHandler extends SimpleChannelInboundHandler<String[]>
                     @Override
                     public void run()
                     {
-                        Bukkit.getOnlinePlayers().forEach( player -> player.kickPlayer( "The Server was shutdown, Reason: " + bye.getReason() ) );
+                        Bukkit.getOnlinePlayers().forEach( player ->
+                                player.kickPlayer( "The Server was shutdown, Reason: " + bye.getReason() ) );
                         Bukkit.shutdown();
                     }
                 }.runTask( plugin );

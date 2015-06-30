@@ -8,7 +8,6 @@ package me.hamzaxx.fperms.bukkit.vault;
 import me.hamzaxx.fperms.bukkit.fPermsPlugin;
 import net.milkbowl.vault.chat.Chat;
 import net.milkbowl.vault.permission.Permission;
-import org.bukkit.Bukkit;
 
 @SuppressWarnings("deprecation")
 public class ChatCompatibility extends Chat
@@ -16,22 +15,23 @@ public class ChatCompatibility extends Chat
 
     private fPermsPlugin plugin;
 
-    public ChatCompatibility(fPermsPlugin plugin)
+    public ChatCompatibility(fPermsPlugin plugin, Permission permission)
     {
-        super( Bukkit.getServicesManager().load( Permission.class ) );
+        super( permission );
+        //super( Bukkit.getServicesManager().load( Permission.class ) );
         this.plugin = plugin;
     }
 
     @Override
     public String getName()
     {
-        return "fPerms";
+        return plugin.getName();
     }
 
     @Override
     public boolean isEnabled()
     {
-        return true;
+        return plugin.isEnabled();
     }
 
     @Override
@@ -49,37 +49,37 @@ public class ChatCompatibility extends Chat
     @Override
     public void setPlayerPrefix(String world, String playerName, String prefix)
     {
-        plugin.getPlayerData().get( playerName ).setPrefix( prefix );
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
     public void setPlayerSuffix(String world, String playerName, String suffix)
     {
-        plugin.getPlayerData().get( playerName ).setSuffix( suffix );
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
-    public String getGroupPrefix(String world, String playerName)
+    public String getGroupPrefix(String world, String groupName)
     {
-       return plugin.getPlayerData().get( playerName ).getGroup().getPrefix();
+        return plugin.getGroups().get( groupName ).getPrefix();
     }
 
     @Override
     public void setGroupPrefix(String world, String playerName, String prefix)
     {
-        plugin.getPlayerData().get( playerName ).getGroup().setPrefix( prefix );
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
-    public String getGroupSuffix(String world, String playerName)
+    public String getGroupSuffix(String world, String groupName)
     {
-        return plugin.getPlayerData().get( playerName ).getGroup().getSuffix();
+        return plugin.getGroups().get( groupName ).getSuffix();
     }
 
     @Override
     public void setGroupSuffix(String world, String playerName, String suffix)
     {
-        plugin.getPlayerData().get( playerName ).getGroup().setSuffix( suffix );
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -91,7 +91,7 @@ public class ChatCompatibility extends Chat
     @Override
     public void setPlayerInfoInteger(String s, String s1, String s2, int i)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -103,7 +103,7 @@ public class ChatCompatibility extends Chat
     @Override
     public void setGroupInfoInteger(String s, String s1, String s2, int i)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ChatCompatibility extends Chat
     @Override
     public void setPlayerInfoDouble(String s, String s1, String s2, double v)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -127,7 +127,7 @@ public class ChatCompatibility extends Chat
     @Override
     public void setGroupInfoDouble(String s, String s1, String s2, double v)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -139,7 +139,7 @@ public class ChatCompatibility extends Chat
     @Override
     public void setPlayerInfoBoolean(String s, String s1, String s2, boolean b)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -151,7 +151,7 @@ public class ChatCompatibility extends Chat
     @Override
     public void setGroupInfoBoolean(String s, String s1, String s2, boolean b)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -163,7 +163,7 @@ public class ChatCompatibility extends Chat
     @Override
     public void setPlayerInfoString(String s, String s1, String s2, String s3)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 
     @Override
@@ -175,6 +175,6 @@ public class ChatCompatibility extends Chat
     @Override
     public void setGroupInfoString(String s, String s1, String s2, String s3)
     {
-
+        throw new UnsupportedOperationException( "fPerms API is read only!" );
     }
 }

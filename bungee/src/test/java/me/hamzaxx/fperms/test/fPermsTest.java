@@ -169,7 +169,7 @@ public class fPermsTest
     {
         Gson gson = new Gson();
         Map<String, Permission> permissionMap = new HashMap<>();
-        Permission permission = new Permission( "bukkit.command.help", new Permission.Location( Permission.LocationType.ALL ), false );
+        Permission permission = new Permission( "bukkit.command.help", false, Permission.LocationType.ALL );
         permissionMap.put( permission.getName(), permission );
         String json = gson.toJson( permissionMap );
         System.out.println( json );
@@ -183,13 +183,11 @@ public class fPermsTest
     {
         Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         Map<String, Permission> bukkitPerms = new HashMap<>();
-        bukkitPerms.put( "smoke.it", new Permission( "smoke.it", new Permission.Location( Permission.LocationType.ALL ), false ) );
+        bukkitPerms.put( "smoke.it", new Permission( "smoke.it", false, Permission.LocationType.ALL ) );
         GroupData groupData = new GroupData( null, "admin", "admin", " >", new ArrayList<>(), new HashMap<>(), bukkitPerms );
         String json = gson.toJson( groupData );
         System.out.println( json );
         GroupData data = gson.fromJson( json, GroupData.class );
         data.getBukkitPermissions().keySet().forEach( System.out::println );
     }
-
-
 }

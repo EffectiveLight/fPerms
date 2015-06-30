@@ -34,10 +34,10 @@ public class PermissionListener implements Listener
             Data playerData = plugin.getDataSource().getPlayerData( player.getUniqueId() );
             Map<String, Permission> permissions = playerData.getEffectiveBungeePermissions();
 
-            if ( permissions.containsKey( event.getPermission() ) )
+            if ( permissions.containsKey( "*" ) )
             {
-                Permission permission = permissions.get( event.getPermission() );
-                switch ( permission.getLocation().getType() )
+                Permission permission = permissions.get( "*" );
+                switch ( permission.getLocationType() )
                 {
                     case ALL:
                         event.setHasPermission( permission.getValue() );
@@ -45,7 +45,26 @@ public class PermissionListener implements Listener
                     case SERVER:
                         event.setHasPermission( permission.getValue()
                                 && player.getServer().getInfo().getName().equals(
-                                permission.getLocation().getLocationName() ) );
+                                permission.getLocationName() ) );
+                        break;
+                    default:
+                        event.setHasPermission( false );
+                        break;
+                }
+            }
+
+            if ( permissions.containsKey( event.getPermission() ) )
+            {
+                Permission permission = permissions.get( event.getPermission() );
+                switch ( permission.getLocationType() )
+                {
+                    case ALL:
+                        event.setHasPermission( permission.getValue() );
+                        break;
+                    case SERVER:
+                        event.setHasPermission( permission.getValue()
+                                && player.getServer().getInfo().getName().equals(
+                                permission.getLocationName() ) );
                         break;
                     default:
                         event.setHasPermission( false );

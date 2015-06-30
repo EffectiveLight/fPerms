@@ -10,7 +10,8 @@ public class ClientHello
 
     private String serverName;
 
-    public ClientHello(String serverName) {
+    public ClientHello(String serverName)
+    {
         this.serverName = serverName;
     }
 

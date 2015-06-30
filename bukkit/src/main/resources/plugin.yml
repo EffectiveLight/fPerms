@@ -1,5 +1,6 @@
 name: fPerms
 version: ${project.version}
 author: hamzaxx
-softdepend: [Vault]
+load: STARTUP
+depend: [Vault]
 main: me.hamzaxx.fperms.bukkit.fPermsPlugin

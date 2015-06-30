@@ -19,7 +19,6 @@ import me.hamzaxx.fperms.common.permissions.PermissionData;
 import net.md_5.bungee.api.config.ServerInfo;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Map;
 
 @ChannelHandler.Sharable
@@ -69,7 +68,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<String[]>
                             new Change( ChangeType.GROUP, groupData.getGroupName() ) ), plugin.getGson().toJson( data ) } );
                 } );
                 ServerInfo serverInfo = plugin.getProxy().getServerInfo( hello.getServerName() );
-                if ( !serverInfo.getPlayers().isEmpty() )
+                if ( serverInfo != null && !serverInfo.getPlayers().isEmpty() )
                 {
                     serverInfo.getPlayers().forEach( player -> {
                         PlayerData playerData = plugin.getDataSource().getPlayerData( player.getUniqueId() );

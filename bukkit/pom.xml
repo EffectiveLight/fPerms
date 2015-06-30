@@ -10,7 +10,7 @@
     <parent>
         <artifactId>fperms</artifactId>
         <groupId>me.hamzaxx</groupId>
-        <version>0.93-BETA</version>
+        <version>0.945-BETA</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,7 +31,7 @@
         <dependency>
             <groupId>me.hamzaxx</groupId>
             <artifactId>common</artifactId>
-            <version>0.93-BETA</version>
+            <version>0.945-BETA</version>
         </dependency>
         <dependency>
             <groupId>org.spigotmc</groupId>
@@ -42,6 +42,11 @@
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.5</version>
+        </dependency>
+        <dependency>
+            <groupId>net.milkbowl.vault</groupId>
+            <artifactId>Vault</artifactId>
+            <version>1.5.4</version>
         </dependency>
     </dependencies>
 

@@ -7,7 +7,6 @@ package me.hamzaxx.fperms.bungee.data;
 
 import me.hamzaxx.fperms.common.permissions.Permission;
 
-import java.util.List;
 import java.util.Map;
 
 public interface Data
@@ -27,8 +26,6 @@ public interface Data
 
     Map<String, Permission> getEffectiveBukkitPermissions();
 
-    List<String> getParents();
-
     boolean unsetBungeePermission(String permission);
 
     boolean unsetBukkitPermission(String permission);
@@ -40,8 +37,4 @@ public interface Data
     void setPrefix(String prefix);
 
     void setSuffix(String suffix);
-
-    void addParent(String parent);
-
-    void addParents(List<String> parents);
 }

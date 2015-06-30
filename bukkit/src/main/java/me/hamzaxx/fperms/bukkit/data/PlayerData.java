@@ -125,7 +125,8 @@ public class PlayerData implements Data, Serializable
         effectivePermissions.putAll( permissions );
         effectivePermissions.putAll( getGroup().getPermissions() );
         effectivePermissions.values().forEach( permission -> {
-            org.bukkit.permissions.Permission perm = plugin.getServer().getPluginManager().getPermission( permission.getName() );
+            org.bukkit.permissions.Permission perm =
+                    plugin.getServer().getPluginManager().getPermission( permission.getName() );
             if ( perm != null )
             {
                 Map<String, Boolean> children = perm.getChildren();
@@ -133,7 +134,9 @@ public class PlayerData implements Data, Serializable
                 {
                     children.entrySet().stream().forEach( entry -> {
                         if ( !effectivePermissions.containsKey( perm.getName() ) )
-                            effectivePermissions.put( perm.getName(), new Permission( perm.getName(), permission.getLocation(), entry.getValue() ) );
+                            effectivePermissions.put( perm.getName(),
+                                    new Permission( perm.getName(), entry.getValue(),
+                                            permission.getLocationType(), permission.getLocationName() ) );
                     } );
                 }
             }

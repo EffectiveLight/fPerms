@@ -5,6 +5,7 @@
 
 package me.hamzaxx.fperms.bungee;
 
+import net.md_5.bungee.Util;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -28,10 +29,9 @@ public class Config
                     YamlConfiguration.class ).load( new File( plugin.getDataFolder(), "bungeeconfig.yml" ) );
             port = config.getInt( "server-port" );
             defaultGroupName = config.getString( "default-group-name" );
-            String[] redis = config.getString( "redis.address" ).split( ":" );
             try
             {
-                address = new InetSocketAddress( redis[ 0 ], Integer.parseInt( redis[ 1 ] ) );
+                address = Util.getAddr( config.getString( "redis.address" ) );
             } catch ( NumberFormatException e )
             {
                 plugin.getLogger().severe( "Incorrect server address given. Proxy shutting down." );
