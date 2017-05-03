@@ -1,8 +1,3 @@
-/*
- * Copyright (c) Effective Light 2015.
- * All rights reserved.
- */
-
 package me.hamzaxx.fperms.bungee.data;
 
 import net.md_5.bungee.api.connection.ProxiedPlayer;

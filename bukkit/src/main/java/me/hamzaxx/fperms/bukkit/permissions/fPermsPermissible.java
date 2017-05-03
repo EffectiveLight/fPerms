@@ -1,8 +1,3 @@
-/*
- * Copyright (c) Effective Light 2015.
- * All rights reserved.
- */
-
 package me.hamzaxx.fperms.bukkit.permissions;
 
 import me.hamzaxx.fperms.bukkit.data.PlayerData;

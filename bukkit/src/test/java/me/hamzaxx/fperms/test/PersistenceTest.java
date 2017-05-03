@@ -1,7 +1,4 @@
-/*
- * Copyright (c) Effective Light 2015.
- * All rights reserved.
- */
+package me.hamzaxx.fperms.test;
 
 import com.google.gson.Gson;
 import me.hamzaxx.fperms.bukkit.data.PlayerData;
@@ -13,7 +10,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Test
+public class PersistenceTest
 {
 
     private Gson gson = new Gson();

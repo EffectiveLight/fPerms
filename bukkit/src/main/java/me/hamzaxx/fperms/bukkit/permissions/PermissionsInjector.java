@@ -8,7 +8,6 @@ package me.hamzaxx.fperms.bukkit.permissions;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import javax.annotation.Nonnull;
 import java.lang.reflect.Field;
 
 public class PermissionsInjector
@@ -17,7 +16,7 @@ public class PermissionsInjector
     private Player player;
     private fPermsPermissible permissible;
 
-    public PermissionsInjector(@Nonnull Player player, @Nonnull fPermsPermissible permissible)
+    public PermissionsInjector(Player player, fPermsPermissible permissible)
     {
         this.player = player;
         this.permissible = permissible;
@@ -28,7 +27,7 @@ public class PermissionsInjector
         String version = Bukkit.getServer().getClass().getPackage().getName().split( "\\." )[ 3 ];
         try
         {
-            final Class<?> craftHumanEntityClass = Class.forName( "org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity" );
+            Class<?> craftHumanEntityClass = Class.forName( "org.bukkit.craftbukkit." + version + ".entity.CraftHumanEntity" );
             permField = craftHumanEntityClass.getDeclaredField( "perm" );
             permField.setAccessible( true );
         } catch ( ClassNotFoundException | NoSuchFieldException e )

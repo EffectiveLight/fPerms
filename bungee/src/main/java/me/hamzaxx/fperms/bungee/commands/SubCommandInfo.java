@@ -1,8 +1,3 @@
-/*
- * Copyright (c) Effective Light 2015.
- * All rights reserved.
- */
-
 package me.hamzaxx.fperms.bungee.commands;
 
 import com.sun.istack.internal.Nullable;

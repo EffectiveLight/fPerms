@@ -1,8 +1,3 @@
-/*
- * Copyright (c) Effective Light 2015.
- * All rights reserved.
- */
-
 package me.hamzaxx.fperms.bungee.annotations;
 
 import java.lang.annotation.Retention;

@@ -1,9 +1,7 @@
-### Java template
-
-# IntelliJ #
+# JetBrains
 .idea
 out
 *.iml
 
-# Maven #
+# Maven
 target
