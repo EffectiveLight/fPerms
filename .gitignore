@@ -1,6 +1,7 @@
 # JetBrains
 .idea
 out
+classes
 *.iml
 
 # Maven

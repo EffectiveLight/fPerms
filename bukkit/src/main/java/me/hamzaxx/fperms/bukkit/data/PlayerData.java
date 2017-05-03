@@ -127,7 +127,7 @@ public class PlayerData implements Data, Serializable
                 Map<String, Boolean> children = perm.getChildren();
                 if ( children != null )
                 {
-                    children.entrySet().stream().forEach( entry -> {
+                    children.entrySet().forEach(entry -> {
                         if ( !effectivePermissions.containsKey( perm.getName() ) )
                             effectivePermissions.put( perm.getName(),
                                     new Permission( perm.getName(), entry.getValue(),

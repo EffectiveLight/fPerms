@@ -1,6 +1,5 @@
 package me.hamzaxx.fperms.bungee.commands;
 
-import com.sun.istack.internal.Nullable;
 import me.hamzaxx.fperms.bungee.annotations.SubCommand;
 
 import java.lang.reflect.Method;
@@ -15,7 +14,7 @@ public class SubCommandInfo
     private List<String> optionalArgs;
     private Method subCommandMethod;
 
-    public SubCommandInfo(SubCommand subCommand, @Nullable Method subCommandMethod)
+    public SubCommandInfo(SubCommand subCommand,  Method subCommandMethod)
     {
         this.subCommandMethod = subCommandMethod;
         this.name = subCommand.name();
